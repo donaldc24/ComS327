@@ -118,8 +118,26 @@ void genSeed() {
         seed[i][79] = '%';
     }
 
-    genNorthSouthPath();
-    genEastWestPath();
+    int num = rand() % 20;
+    if (num == 3 || num == 7) {
+        genNorthSouthPath();
+        genNorthSouthPath();
+    } else {
+        genNorthSouthPath();
+    }
+
+    num = rand() % 20;
+    if (num == 3 || num == 12) {
+        genEastWestPath();
+        genEastWestPath();
+    } else if (num == 7) {
+        genEastWestPath();
+        genEastWestPath();
+        genEastWestPath();
+    } else {
+        genEastWestPath();
+    }
+    
     //genCenterAndMart();
 }
 
