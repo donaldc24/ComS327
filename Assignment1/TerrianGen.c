@@ -60,7 +60,24 @@ void genEastWestPath() {
     }
 }
 
-int isEmpty(int r1, int c1, int r2, int c2, int r3, int c3, int r4, int c4) {
+int isEmpty(int r1, int c1, int r2, int c2, int r3, int c3, int r4, int c4, int type) {
+    int count = 0;
+    if (type == 1) {
+        int surronding[] = {
+        seed[r1-1][c1], seed[r1][c1-1],
+        seed[r2+1][c1], seed[r2][c1-1],
+        seed[r1-1][c2], seed[r1][c2+1],
+        seed[r2+1][c2], seed[r2][c2+1]
+        };
+
+        for (int k = 0; k < 12; k++) {
+            if (surronding[k] == '#') {
+                count++;     
+            }
+        }
+    }
+
+
     for (int i = 1; i < 21; i++) {
         for (int j = 1; j < 80; j++) {
             if (seed[r1][c1] != '.' || seed[r2][c2] != '.' || seed[r3][c3] != '.' || seed[r4][c4] != '.') {
@@ -69,37 +86,88 @@ int isEmpty(int r1, int c1, int r2, int c2, int r3, int c3, int r4, int c4) {
         }
     }
 
-    return true;
+    if (type == 1 && count > 0) {
+        return true;
+    } else {
+        return false;
+    }
+
 }
 
-// void genCenterAndMart() {
-//     int centerR = (rand() % 10) + 5;
-//     int centerC = (rand() % 70) + 5;
+void genTallGrass() {
+    // int row = (rand() % 10) + 5;
+    // int col = (rand() % 70) + 5;
+    // int check = false;
 
-//     seed[centerR][centerC] = 'C';
-//     seed[centerR+1][centerC] = 'C';
-//     seed[centerR][centerC+1] = 'C';
-//     seed[centerR+1][centerC+1] = 'C';
+    // int posRow[] = {1, 0, -1};
+    // int posCol[] = {1, 0, -1};
 
-//     int martR1 = 0;
-//     int martC1 = 0;
-//     int martR2 = 0;
-//     int martC2 = 0;
-//     int check = false;
+    // int area = (rand() % 5) + 2;
 
-//     while (check == false) {
-//         martR1 = (rand() % 10) + 5;
-//         martC1 = (rand() % 70) + 5;
-//         martR2 = martR1 + 1;
-//         martC2 = martC1 + 1;
-//         check = isEmpty(martR1, martC1, martR2, martC1, martR1, martC2, martR2, martC2);
-//     }
+    // while (seed[row][col] != '.') {
+    //     row = (rand() % 10) + 5;
+    //     col = (rand() % 70) + 5;
+    // }
+    // seed[row][col] = ':';
 
-//     seed[martR1][martC1] = 'M';
-//     seed[martR2][martC1] = 'M';
-//     seed[martR1][martC2] = 'M';
-//     seed[martR2][martC2] = 'M';
-// }
+    // //for (int k = 0; k < 3; k++) {
+    //     for (int i = 0; i < 3; i++) {
+    //         for (int j = 0; j < 3; j++) {
+    //             int row1 = row + posRow[i];
+    //             int col1 = col + posCol[j];
+
+    //             while (seed[row1][col1] != '.') {
+    //                 row1 = row + posRow[i];
+    //                 col1 = col + posCol[j];
+    //             }
+    //             row = row1;
+    //             col = col1;
+    //             seed[row][col] = ':';
+    //             break;
+    //         }
+    //     }
+    // //}
+}
+
+void genCenterAndMart() {
+    int centerR1 = 0;
+    int centerC1 = 0;
+    int centerR2 = 0;
+    int centerC2 = 0;
+    int check = false;
+
+    while (check == false) {
+        centerR1 = (rand() % 10) + 5;
+        centerC1 = (rand() % 70) + 5;
+        centerR2 = centerR1 + 1;
+        centerC2 = centerC1 + 1;
+        check = isEmpty(centerR1, centerC1, centerR2, centerC1, centerR1, centerC2, centerR2, centerC2, 1);
+    }
+
+    seed[centerR1][centerC1] = 'C';
+    seed[centerR2][centerC1] = 'C';
+    seed[centerR1][centerC2] = 'C';
+    seed[centerR2][centerC2] = 'C';
+
+    int martR1 = 0;
+    int martC1 = 0;
+    int martR2 = 0;
+    int martC2 = 0;
+    check = false;
+
+    while (check == false) {
+        martR1 = (rand() % 10) + 5;
+        martC1 = (rand() % 70) + 5;
+        martR2 = martR1 + 1;
+        martC2 = martC1 + 1;
+        check = isEmpty(martR1, martC1, martR2, martC1, martR1, martC2, martR2, martC2, 1);
+    }
+
+    seed[martR1][martC1] = 'M';
+    seed[martR2][martC1] = 'M';
+    seed[martR1][martC2] = 'M';
+    seed[martR2][martC2] = 'M';
+}
 
 void genSeed() {
     int i, j;
@@ -138,7 +206,8 @@ void genSeed() {
         genEastWestPath();
     }
     
-    //genCenterAndMart();
+    genCenterAndMart();
+    genTallGrass();
 }
 
 void printSeed() {
