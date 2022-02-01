@@ -170,8 +170,8 @@ void genCenterAndMart() {
 }
 
 void genRandomObj() { 
-    for (int i = 0; i < 21; i++) {
-        for (int j = 0; j < 80; j++) {
+    for (int i = 1; i < 20; i++) {
+        for (int j = 1; j < 79; j++) {
             if (seed[i][j] == '.') {
                 int num = rand() % 50;
                 if (num == 3) {
@@ -190,7 +190,7 @@ void genSeed() {
     for (i = 0; i < 21; i++) {
         seed[i][0] = '%';
         if (i == 0 || i == 20) {
-            for (j = 1; j < 80; j++) {
+            for (j = 0; j < 80; j++) {
                 seed[i][j] = '%';
             } 
         } else {
@@ -209,9 +209,11 @@ void genSeed() {
         genNorthSouthPath();
         genNorthSouthPath();
         genNorthSouthPath();
+        genTallGrass();
     } else if (num == 13) {
         genNorthSouthPath();
         genNorthSouthPath();
+        genTallGrass();
     } else {
         genNorthSouthPath();
     }
@@ -224,9 +226,11 @@ void genSeed() {
         genEastWestPath();
         genEastWestPath();
         genEastWestPath();
+        genTallGrass();
     } else {
         genEastWestPath();
     }
+    genTallGrass();
     genCenterAndMart();
     genRandomObj();
 }
