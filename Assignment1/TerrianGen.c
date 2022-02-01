@@ -239,9 +239,19 @@ void genSeed() {
 void printSeed() {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 80; j++) {
-            printf("%c", seed[i][j]);
+            if (seed[i][j] == '"') {
+                printf("\033[0;33m%c", seed[i][j]);
+            } else if (seed[i][j] == '#') {
+                printf("\033[0;31m%c", seed[i][j]);
+            } else if (seed[i][j] == ':' || seed[i][j] == '.') {
+                printf("\033[0;32m%c", seed[i][j]);
+            } else if (seed[i][j] == 'C' || seed[i][j] == 'M') {
+                printf("\033[0;35m%c", seed[i][j]);
+            } else {
+                printf("\033[0;37m%c", seed[i][j]);
+            }
         }
-        printf("\n");
+        printf("\033[0;37m\n");
     }
 }
 
