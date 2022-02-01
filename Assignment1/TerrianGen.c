@@ -95,38 +95,38 @@ int isEmpty(int r1, int c1, int r2, int c2, int r3, int c3, int r4, int c4, int 
 }
 
 void genTallGrass() {
-    // int row = (rand() % 10) + 5;
-    // int col = (rand() % 70) + 5;
-    // int check = false;
+    int row = (rand() % 10) + 5;
+    int col = (rand() % 70) + 5;
+    int origCol = col;
+    int rows[8];
+    int count = 0;
 
-    // int posRow[] = {1, 0, -1};
-    // int posCol[] = {1, 0, -1};
+    while (count <= 5 && seed[row][col] == '.' && row > 4 && row < 16) {
+        rows[count] = row;
+        seed[row][col] = ':';
+        row = row + 1;
+        int count2 = 0;
+        col = origCol;
+        while (count2 < 8 && seed[row][col] == '.' && col > 4 && row < 76) {
+            if (seed[row][col] == '.' && col > 4 && col < 76) {
+                seed[row][col] = ':';
+            }
+            col = col + 1;
+            count2++;
+        }
+        count++;
+    }
 
-    // int area = (rand() % 5) + 2;
-
-    // while (seed[row][col] != '.') {
-    //     row = (rand() % 10) + 5;
-    //     col = (rand() % 70) + 5;
-    // }
-    // seed[row][col] = ':';
-
-    // //for (int k = 0; k < 3; k++) {
-    //     for (int i = 0; i < 3; i++) {
-    //         for (int j = 0; j < 3; j++) {
-    //             int row1 = row + posRow[i];
-    //             int col1 = col + posCol[j];
-
-    //             while (seed[row1][col1] != '.') {
-    //                 row1 = row + posRow[i];
-    //                 col1 = col + posCol[j];
-    //             }
-    //             row = row1;
-    //             col = col1;
-    //             seed[row][col] = ':';
-    //             break;
-    //         }
-    //     }
-    // //}
+    if (count < 3) {
+        for (int i = 0; i < 8; i++) {
+            if (rows[i] != 0 && rows[i] > 4 && rows[i] < 16) {
+                seed[rows[i]][col] = '.'; 
+            } else {
+                break;
+            }
+        }
+        genTallGrass();
+      }
 }
 
 void genCenterAndMart() {
@@ -169,6 +169,21 @@ void genCenterAndMart() {
     seed[martR2][martC2] = 'M';
 }
 
+void genRandomObj() { 
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 80; j++) {
+            if (seed[i][j] == '.') {
+                int num = rand() % 50;
+                if (num == 3) {
+                    seed[i][j] = '"';
+                } else if (num == 8) {
+                    seed[i][j] = '%';
+                }
+            }
+        }
+    }
+}
+
 void genSeed() {
     int i, j;
 
@@ -190,6 +205,10 @@ void genSeed() {
     if (num == 3 || num == 7) {
         genNorthSouthPath();
         genNorthSouthPath();
+        genNorthSouthPath();
+    } else if (num == 13) {
+        genNorthSouthPath();
+        genNorthSouthPath();
     } else {
         genNorthSouthPath();
     }
@@ -198,16 +217,23 @@ void genSeed() {
     if (num == 3 || num == 12) {
         genEastWestPath();
         genEastWestPath();
+        genTallGrass();
+        genTallGrass();
     } else if (num == 7) {
         genEastWestPath();
         genEastWestPath();
         genEastWestPath();
+        genTallGrass();
+        genTallGrass();
     } else {
         genEastWestPath();
+        genTallGrass();
+        genTallGrass();
     }
     
-    genCenterAndMart();
     genTallGrass();
+    genCenterAndMart();
+    genRandomObj();
 }
 
 void printSeed() {
