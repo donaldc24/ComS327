@@ -200,6 +200,9 @@ void genSeed() {
         }
         seed[i][79] = '%';
     }
+    
+    genTallGrass();
+    genTallGrass();
 
     int num = rand() % 20;
     if (num == 3 || num == 7) {
@@ -217,21 +220,13 @@ void genSeed() {
     if (num == 3 || num == 12) {
         genEastWestPath();
         genEastWestPath();
-        genTallGrass();
-        genTallGrass();
     } else if (num == 7) {
         genEastWestPath();
         genEastWestPath();
         genEastWestPath();
-        genTallGrass();
-        genTallGrass();
     } else {
         genEastWestPath();
-        genTallGrass();
-        genTallGrass();
     }
-    
-    genTallGrass();
     genCenterAndMart();
     genRandomObj();
 }
