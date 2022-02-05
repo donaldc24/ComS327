@@ -254,8 +254,34 @@ void printSeed() {
     }
 }
 
-void main() {
+int main(void) {
     srand(time(0));
     genSeed();
     printSeed();
+    char input;
+    int x, y;
+
+    while (input != 'q') {
+        scanf("%c", &input);
+        switch(input) {
+            case 'n':
+                printf("Hello N\n");
+                break;
+            case 's':
+                printf("Hello S\n");
+                break;
+            case 'e':
+                printf("Hello E\n");
+                break;
+            case 'w':
+                printf("Hello W\n");
+                break;
+            case 'f':
+                scanf("%d %d", &x, &y);
+                printf("%d %d\n", x, y);
+                break;
+        }
+    }
+
+    return 0;
 }
