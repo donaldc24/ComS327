@@ -4,14 +4,14 @@
 #define true 1
 #define false 0
 
-char seed[21][80];
+char world[21][80][399][399];
 
-void genNorthSouthPath() {
+void genNorthSouthPath(int worldX, int worldY) {
     int start = (rand() % 12) + 4;
-    seed[start][0] = '#';
+    world[start][0][worldX][worldY] = '#';
 
     int loc[] = {start, 1};
-    seed[loc[0]][loc[1]] = '#';
+    world[loc[0]][loc[1]][worldX][worldY] = '#';
 
     while (loc[1] < 79) {
         int num = rand() % 10;
@@ -29,16 +29,16 @@ void genNorthSouthPath() {
                 loc[0] = loc[0] - 1;
             }
         }
-        seed[loc[0]][loc[1]] = '#';
+        world[loc[0]][loc[1]][worldX][worldY] = '#';
     }
 }
 
-void genEastWestPath() {
+void genEastWestPath(int worldX, int worldY) {
     int start = (rand() % 70) + 4;
-    seed[0][start] = '#';
+    world[0][start][worldX][worldY] = '#';
 
     int loc[] = {1, start};
-    seed[loc[0]][loc[1]] = '#';
+    world[loc[0]][loc[1]][worldX][worldY] = '#';
 
     while (loc[0] < 20) {
         int num = rand() % 10;
@@ -56,18 +56,18 @@ void genEastWestPath() {
                 loc[1] = loc[1] - 1;
             }
         }
-        seed[loc[0]][loc[1]] = '#';
+        world[loc[0]][loc[1]][worldX][worldY] = '#';
     }
 }
 
-int isEmpty(int r1, int c1, int r2, int c2, int r3, int c3, int r4, int c4, int type) {
+int isEmpty(int r1, int c1, int r2, int c2, int r3, int c3, int r4, int c4, int type, int worldX, int worldY) {
     int count = 0;
     if (type == 1) {
         int surronding[] = {
-        seed[r1-1][c1], seed[r1][c1-1],
-        seed[r2+1][c1], seed[r2][c1-1],
-        seed[r1-1][c2], seed[r1][c2+1],
-        seed[r2+1][c2], seed[r2][c2+1]
+        world[r1-1][c1][worldX][worldY], world[r1][c1-1][worldX][worldY],
+        world[r2+1][c1][worldX][worldY], world[r2][c1-1][worldX][worldY],
+        world[r1-1][c2][worldX][worldY], world[r1][c2+1][worldX][worldY],
+        world[r2+1][c2][worldX][worldY], world[r2][c2+1][worldX][worldY]
         };
 
         for (int k = 0; k < 12; k++) {
@@ -80,7 +80,7 @@ int isEmpty(int r1, int c1, int r2, int c2, int r3, int c3, int r4, int c4, int 
 
     for (int i = 1; i < 21; i++) {
         for (int j = 1; j < 80; j++) {
-            if (seed[r1][c1] != '.' || seed[r2][c2] != '.' || seed[r3][c3] != '.' || seed[r4][c4] != '.') {
+            if (world[r1][c1][worldX][worldY] != '.' || world[r2][c2][worldX][worldY] != '.' || world[r3][c3][worldX][worldY] != '.' || world[r4][c4][worldX][worldY] != '.') {
                 return false;
             }
         }
@@ -94,22 +94,22 @@ int isEmpty(int r1, int c1, int r2, int c2, int r3, int c3, int r4, int c4, int 
 
 }
 
-void genTallGrass() {
+void genTallGrass(int worldX, int worldY) {
     int row = (rand() % 10) + 5;
     int col = (rand() % 70) + 5;
     int origCol = col;
     int rows[8];
     int count = 0;
 
-    while (count <= 5 && seed[row][col] == '.' && row > 4 && row < 16) {
+    while (count <= 5 && world[row][col][worldX][worldY] == '.' && row > 4 && row < 16) {
         rows[count] = row;
-        seed[row][col] = ':';
+        world[row][col][worldX][worldY] = ':';
         row = row + 1;
         int count2 = 0;
         col = origCol;
-        while (count2 < 8 && seed[row][col] == '.' && col > 4 && row < 76) {
-            if (seed[row][col] == '.' && col > 4 && col < 76) {
-                seed[row][col] = ':';
+        while (count2 < 8 && world[row][col][worldX][worldY] == '.' && col > 4 && row < 76) {
+            if (world[row][col][worldX][worldY] == '.' && col > 4 && col < 76) {
+                world[row][col][worldX][worldY] = ':';
             }
             col = col + 1;
             count2++;
@@ -120,16 +120,16 @@ void genTallGrass() {
     if (count < 3) {
         for (int i = 0; i < 8; i++) {
             if (rows[i] != 0 && rows[i] > 4 && rows[i] < 16) {
-                seed[rows[i]][col] = '.'; 
+                world[rows[i]][col][worldX][worldY] = '.'; 
             } else {
                 break;
             }
         }
-        genTallGrass();
+        genTallGrass(worldX, worldY);
       }
 }
 
-void genCenterAndMart() {
+void genCenterAndMart(int worldX, int worldY) {
     int centerR1 = 0;
     int centerC1 = 0;
     int centerR2 = 0;
@@ -141,13 +141,13 @@ void genCenterAndMart() {
         centerC1 = (rand() % 70) + 5;
         centerR2 = centerR1 + 1;
         centerC2 = centerC1 + 1;
-        check = isEmpty(centerR1, centerC1, centerR2, centerC1, centerR1, centerC2, centerR2, centerC2, 1);
+        check = isEmpty(centerR1, centerC1, centerR2, centerC1, centerR1, centerC2, centerR2, centerC2, 1, worldX, worldY);
     }
 
-    seed[centerR1][centerC1] = 'C';
-    seed[centerR2][centerC1] = 'C';
-    seed[centerR1][centerC2] = 'C';
-    seed[centerR2][centerC2] = 'C';
+    world[centerR1][centerC1][worldX][worldY] = 'C';
+    world[centerR2][centerC1][worldX][worldY] = 'C';
+    world[centerR1][centerC2][worldX][worldY] = 'C';
+    world[centerR2][centerC2][worldX][worldY] = 'C';
 
     int martR1 = 0;
     int martC1 = 0;
@@ -160,94 +160,90 @@ void genCenterAndMart() {
         martC1 = (rand() % 70) + 5;
         martR2 = martR1 + 1;
         martC2 = martC1 + 1;
-        check = isEmpty(martR1, martC1, martR2, martC1, martR1, martC2, martR2, martC2, 1);
+        check = isEmpty(martR1, martC1, martR2, martC1, martR1, martC2, martR2, martC2, 1, worldX, worldY);
     }
 
-    seed[martR1][martC1] = 'M';
-    seed[martR2][martC1] = 'M';
-    seed[martR1][martC2] = 'M';
-    seed[martR2][martC2] = 'M';
+    world[martR1][martC1][worldX][worldY] = 'M';
+    world[martR2][martC1][worldX][worldY] = 'M';
+    world[martR1][martC2][worldX][worldY] = 'M';
+    world[martR2][martC2][worldX][worldY] = 'M';
 }
 
-void genRandomObj() { 
+void genRandomObj(int worldX, int worldY) { 
     for (int i = 1; i < 20; i++) {
         for (int j = 1; j < 79; j++) {
-            if (seed[i][j] == '.') {
+            if (world[i][j][worldX][worldY] == '.') {
                 int num = rand() % 50;
                 if (num == 3) {
-                    seed[i][j] = '"';
+                    world[i][j][worldX][worldY] = '"';
                 } else if (num == 8) {
-                    seed[i][j] = '%';
+                    world[i][j][worldX][worldY] = '%';
                 }
             }
         }
     }
 }
 
-void genSeed() {
+void genSeed(int worldX, int worldY) {
     int i, j;
 
     for (i = 0; i < 21; i++) {
-        seed[i][0] = '%';
+        world[i][0][worldX][worldY] = '%';
         if (i == 0 || i == 20) {
             for (j = 0; j < 80; j++) {
-                seed[i][j] = '%';
+                world[i][j][worldX][worldY] = '%';
             } 
-        } else {
-            for (j = 1; j < 80; j++) {
-                seed[i][j] = '.';
-            }
-        }
-        seed[i][79] = '%';
+        } 
+        world[i][79][worldX][worldY] = '%';
     }
     
-    genTallGrass();
-    genTallGrass();
+    genTallGrass(worldX, worldY);
+    genTallGrass(worldX, worldY);
 
     int num = rand() % 20;
     if (num == 3 || num == 7) {
-        genNorthSouthPath();
-        genNorthSouthPath();
-        genNorthSouthPath();
-        genTallGrass();
+        genNorthSouthPath(worldX, worldY);
+        genNorthSouthPath(worldX, worldY);
+        genNorthSouthPath(worldX, worldY);
+        genTallGrass(worldX, worldY);
     } else if (num == 13) {
-        genNorthSouthPath();
-        genNorthSouthPath();
-        genTallGrass();
+        genNorthSouthPath(worldX, worldY);
+        genNorthSouthPath(worldX, worldY);
+        genTallGrass(worldX, worldY);
     } else {
-        genNorthSouthPath();
+        genNorthSouthPath(worldX, worldY);
     }
 
     num = rand() % 20;
     if (num == 3 || num == 12) {
-        genEastWestPath();
-        genEastWestPath();
+        genEastWestPath(worldX, worldY);
+        genEastWestPath(worldX, worldY);
     } else if (num == 7) {
-        genEastWestPath();
-        genEastWestPath();
-        genEastWestPath();
-        genTallGrass();
+        genEastWestPath(worldX, worldY);
+        genEastWestPath(worldX, worldY);
+        genEastWestPath(worldX, worldY);
+        genTallGrass(worldX, worldY);
     } else {
-        genEastWestPath();
+        genEastWestPath(worldX, worldY);
     }
-    genTallGrass();
-    genCenterAndMart();
-    genRandomObj();
+    genTallGrass(worldX, worldY);
+    genCenterAndMart(worldX, worldY);
+    genRandomObj(worldX, worldY);
 }
 
-void printSeed() {
+void printSeed(int worldX, int worldY) {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 80; j++) {
-            if (seed[i][j] == '"') {
-                printf("\033[0;33m%c", seed[i][j]);
-            } else if (seed[i][j] == '#') {
-                printf("\033[0;31m%c", seed[i][j]);
-            } else if (seed[i][j] == ':' || seed[i][j] == '.') {
-                printf("\033[0;32m%c", seed[i][j]);
-            } else if (seed[i][j] == 'C' || seed[i][j] == 'M') {
-                printf("\033[0;35m%c", seed[i][j]);
+            if (world[i][j][worldX][worldY] == '"') {
+                printf("\033[0;33m%c", world[i][j][worldX][worldY]);
+            } else if (world[i][j][worldX][worldY] == '#') {
+                printf("\033[0;31m%c", world[i][j][worldX][worldY]);
+            } else if (world[i][j][worldX][worldY] == ':' || world[i][j][worldX][worldY] == '.') {
+                printf("\033[0;32m%c", world[i][j][worldX][worldY]);
+            } else if (world[i][j][worldX][worldY] == 'C' || world[i][j][worldX][worldY] == 'M') {
+                printf("\033[0;35m%c", world[i][j][worldX][worldY]);
             } else {
-                printf("\033[0;37m%c", seed[i][j]);
+                printf("\033[0;37m%c", world[i][j][worldX][worldY]);
             }
         }
         printf("\033[0;37m\n");
@@ -255,11 +251,22 @@ void printSeed() {
 }
 
 int main(void) {
+    char emptySeed[21][80];
+    for (int i = 0; i < 399; i++) {
+        for (int j = 0; j < 399; j++) {
+            for (int k = 0; k < 21; k++) {
+                for (int l = 0; l < 80; l++) {
+                    world[k][l][i][j] = '.';
+                }
+            }
+        }
+    }
+    int x = 199;
+    int y = 199;
     srand(time(0));
-    genSeed();
-    printSeed();
+    genSeed(x, y);
+    //printSeed(worldX, worldY);
     char input;
-    int x, y;
 
     while (input != 'q') {
         scanf("%c", &input);
@@ -278,10 +285,10 @@ int main(void) {
                 break;
             case 'f':
                 scanf("%d %d", &x, &y);
-                printf("%d %d\n", x, y);
+                printSeed(x, y);
+                //printf("%d %d\n", x, y);
                 break;
         }
     }
-
     return 0;
 }
