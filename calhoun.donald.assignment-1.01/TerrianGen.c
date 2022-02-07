@@ -189,44 +189,19 @@ void genSeed(int worldX, int worldY) {
 
     for (i = 0; i < 21; i++) {
         world[i][0][worldX][worldY] = '%';
-        if (i == 0 || i == 20) {
-            for (j = 0; j < 80; j++) {
-                world[i][j][worldX][worldY] = '%';
-            } 
-        } 
+        for (j = 0; j < 80; j++) {
+            world[20][j][worldX][worldY] = '%';
+            world[0][j][worldX][worldY] = '%';
+        }
         world[i][79][worldX][worldY] = '%';
     }
     
     genTallGrass(worldX, worldY);
     genTallGrass(worldX, worldY);
-
-    int num = rand() % 20;
-    if (num == 3 || num == 7) {
-        genNorthSouthPath(worldX, worldY);
-        genNorthSouthPath(worldX, worldY);
-        genNorthSouthPath(worldX, worldY);
-        genTallGrass(worldX, worldY);
-    } else if (num == 13) {
-        genNorthSouthPath(worldX, worldY);
-        genNorthSouthPath(worldX, worldY);
-        genTallGrass(worldX, worldY);
-    } else {
-        genNorthSouthPath(worldX, worldY);
-    }
-
-    num = rand() % 20;
-    if (num == 3 || num == 12) {
-        genEastWestPath(worldX, worldY);
-        genEastWestPath(worldX, worldY);
-    } else if (num == 7) {
-        genEastWestPath(worldX, worldY);
-        genEastWestPath(worldX, worldY);
-        genEastWestPath(worldX, worldY);
-        genTallGrass(worldX, worldY);
-    } else {
-        genEastWestPath(worldX, worldY);
-    }
     genTallGrass(worldX, worldY);
+    genTallGrass(worldX, worldY);
+    genNorthSouthPath(worldX, worldY);
+    genEastWestPath(worldX, worldY);
     genCenterAndMart(worldX, worldY);
     genRandomObj(worldX, worldY);
 }
@@ -261,32 +236,40 @@ int main(void) {
             }
         }
     }
+
     int x = 199;
     int y = 199;
     srand(time(0));
     genSeed(x, y);
-    //printSeed(worldX, worldY);
+    printSeed(x, y);
     char input;
 
     while (input != 'q') {
         scanf("%c", &input);
         switch(input) {
             case 'n':
-                printf("Hello N\n");
+                //printf("Hello N\n");
+                y++;
+                printSeed(x, y);
                 break;
             case 's':
-                printf("Hello S\n");
+                y--;
+                //printf("Hello S\n");
+                printSeed(x, y);
                 break;
             case 'e':
-                printf("Hello E\n");
+                x++;
+                //printf("Hello E\n");
+                printSeed(x, y);
                 break;
             case 'w':
-                printf("Hello W\n");
+                x--;
+                //printf("Hello W\n");
+                printSeed(x, y);
                 break;
             case 'f':
                 scanf("%d %d", &x, &y);
                 printSeed(x, y);
-                //printf("%d %d\n", x, y);
                 break;
         }
     }
