@@ -186,6 +186,11 @@ void genRandomObj(int worldX, int worldY) {
 
 void genSeed(int worldX, int worldY) {
     int i, j;
+    for (i = 0; i < 21; i++) {
+        for (j = 0; j < 80; j++) {
+            world[i][j][worldX][worldY] = '.';
+        }
+    }
 
     for (i = 0; i < 21; i++) {
         world[i][0][worldX][worldY] = '%';
@@ -226,17 +231,6 @@ void printSeed(int worldX, int worldY) {
 }
 
 int main(void) {
-    char emptySeed[21][80];
-    for (int i = 0; i < 399; i++) {
-        for (int j = 0; j < 399; j++) {
-            for (int k = 0; k < 21; k++) {
-                for (int l = 0; l < 80; l++) {
-                    world[k][l][i][j] = '.';
-                }
-            }
-        }
-    }
-
     int x = 199;
     int y = 199;
     srand(time(0));
@@ -248,28 +242,42 @@ int main(void) {
         scanf("%c", &input);
         switch(input) {
             case 'n':
-                //printf("Hello N\n");
                 y++;
+                if (world[0][0][x][y] != '%') {
+                    genSeed(x, y);
+                }
                 printSeed(x, y);
                 break;
             case 's':
                 y--;
-                //printf("Hello S\n");
+                if (world[0][0][x][y] != '%') {
+                    genSeed(x, y);
+                }
                 printSeed(x, y);
                 break;
             case 'e':
                 x++;
-                //printf("Hello E\n");
+                if (world[0][0][x][y] != '%') {
+                    genSeed(x, y);
+                }
                 printSeed(x, y);
                 break;
             case 'w':
                 x--;
-                //printf("Hello W\n");
+                if (world[0][0][x][y] != '%') {
+                    genSeed(x, y);
+                }
                 printSeed(x, y);
                 break;
             case 'f':
                 scanf("%d %d", &x, &y);
+                if (world[0][0][x][y] != '%') {
+                    genSeed(x, y);
+                }
                 printSeed(x, y);
+                break;
+            default:
+                // printf("%c is not a valid input, please try n, s, e, w, or f x y!\n", input);
                 break;
         }
     }
