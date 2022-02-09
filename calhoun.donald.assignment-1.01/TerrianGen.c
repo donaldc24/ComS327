@@ -5,58 +5,196 @@
 #define false 0
 
 char world[21][80][399][399];
+int pathNS[4];
+int pathEW[4];
 
-void genNorthSouthPath(int worldX, int worldY) {
+void genEastWestPath(int worldX, int worldY, int pathLoc[3]) {
     int start = (rand() % 12) + 4;
-    world[start][0][worldX][worldY] = '#';
 
-    int loc[] = {start, 1};
-    world[loc[0]][loc[1]][worldX][worldY] = '#';
+    if (pathLoc[2] == 3) {
+        //printf("%d, %d\n", pathLoc[1], start);
+        start = pathLoc[1];
+        pathEW[0] = start;
+        pathEW[1] = 0;
 
-    while (loc[1] < 79) {
-        int num = rand() % 10;
+        world[start][0][worldX][worldY] = '#';
 
-        if (num < 6) {
-            loc[1] = loc[1] + 1;
-        } else if (num >= 6 && num <= 7) {
-            loc[0] = loc[0] - 1;
-            if (loc[0] < 3) {
-                loc[0] = loc[0] + 1;
-            }
-        } else {
-            loc[0] = loc[0] + 1;
-            if (loc[0] > 17) {
-                loc[0] = loc[0] - 1;
-            }
-        }
+        int loc[] = {start, 1};
         world[loc[0]][loc[1]][worldX][worldY] = '#';
+
+        while (loc[1] < 79) {
+            int num = rand() % 10;
+
+            if (num < 6) {
+                loc[1] = loc[1] + 1;
+            } else if (num >= 6 && num <= 7) {
+                loc[0] = loc[0] - 1;
+                if (loc[0] < 3) {
+                    loc[0] = loc[0] + 1;
+                }
+            } else {
+                loc[0] = loc[0] + 1;
+                if (loc[0] > 17) {
+                    loc[0] = loc[0] - 1;
+                }
+            }
+            world[loc[0]][loc[1]][worldX][worldY] = '#';
+        }
+        pathEW[2] = loc[1];
+        pathEW[3] = loc[0];
+    } else if (pathLoc[2] == 2) {
+        printf("%d, %d\n", pathLoc[0], start);
+        start = pathLoc[0];
+        pathEW[0] = start;
+        pathEW[1] = 79;
+
+        world[start][79][worldX][worldY] = '#';
+
+        int loc[] = {start, 78};
+        world[loc[0]][loc[1]][worldX][worldY] = '#';
+
+        while (loc[1] > 0) {
+            int num = rand() % 10;
+
+            if (num < 6) {
+                loc[1] = loc[1] - 1;
+            } else if (num >= 6 && num <= 7) {
+                loc[0] = loc[0] - 1;
+                if (loc[0] < 3) {
+                    loc[0] = loc[0] + 1;
+                }
+            } else {
+                loc[0] = loc[0] + 1;
+                if (loc[0] > 17) {
+                    loc[0] = loc[0] - 1;
+                }
+            }
+            world[loc[0]][loc[1]][worldX][worldY] = '#';
+        }
+        pathEW[2] = loc[1];
+        pathEW[3] = loc[0];
+        printf("%d, %d\n", loc[1], loc[0]);
+    } else {
+        pathEW[0] = start;
+        pathEW[1] = 0;
+        world[start][0][worldX][worldY] = '#';
+
+        int loc[] = {start, 1};
+        world[loc[0]][loc[1]][worldX][worldY] = '#';
+
+        while (loc[1] < 79) {
+            int num = rand() % 10;
+
+            if (num < 6) {
+                loc[1] = loc[1] + 1;
+            } else if (num >= 6 && num <= 7) {
+                loc[0] = loc[0] - 1;
+                if (loc[0] < 3) {
+                    loc[0] = loc[0] + 1;
+                }
+            } else {
+                loc[0] = loc[0] + 1;
+                if (loc[0] > 17) {
+                    loc[0] = loc[0] - 1;
+                }
+            }
+            world[loc[0]][loc[1]][worldX][worldY] = '#';
+        }
+        pathEW[2] = loc[1];
+        pathEW[3] = loc[0];
+        printf("%d, %d\n", loc[1], loc[0]);
     }
 }
 
-void genEastWestPath(int worldX, int worldY) {
+void genNorthSouthPath(int worldX, int worldY, int pathLoc[3]) {
     int start = (rand() % 70) + 4;
-    world[0][start][worldX][worldY] = '#';
+    if (pathLoc[2] == 1) {
+        start = pathLoc[1];
+        pathNS[0] = start;
+        pathNS[1] = 0;
+        world[0][start][worldX][worldY] = '#';
 
-    int loc[] = {1, start};
-    world[loc[0]][loc[1]][worldX][worldY] = '#';
-
-    while (loc[0] < 20) {
-        int num = rand() % 10;
-
-        if (num < 6) {
-            loc[0] = loc[0] + 1;
-        } else if (num >= 6 && num <= 7) {
-            loc[1] = loc[1] - 1;
-            if (loc[1] < 3) {
-                loc[1] = loc[1] + 1;
-            }
-        } else {
-            loc[1] = loc[1] + 1;
-            if (loc[1] > 73) {
-                loc[1] = loc[1] - 1;
-            }
-        }
+        int loc[] = {1, start};
         world[loc[0]][loc[1]][worldX][worldY] = '#';
+
+        while (loc[0] < 20) {
+            int num = rand() % 10;
+
+            if (num < 6) {
+                loc[0] = loc[0] + 1;
+            } else if (num >= 6 && num <= 7) {
+                loc[1] = loc[1] - 1;
+                if (loc[1] < 3) {
+                loc[1] = loc[1] + 1;
+                }
+            } else {
+                loc[1] = loc[1] + 1;
+                if (loc[1] > 73) {
+                loc[1] = loc[1] - 1;
+                }
+            }
+            world[loc[0]][loc[1]][worldX][worldY] = '#';
+        }
+        pathNS[2] = loc[0];
+        pathNS[3] = loc[1];
+    } else if (pathLoc[2] == 0) {
+        //printf("%d, %d\n", pathLoc[0], start);
+        start = pathLoc[0];
+        pathNS[0] = start;
+        pathNS[1] = 20;
+        world[20][start][worldX][worldY] = '#';
+
+        int loc[] = {19, start};
+        world[loc[0]][loc[1]][worldX][worldY] = '#';
+
+        while (loc[0] > 0) {
+            int num = rand() % 10;
+
+            if (num < 6) {
+                loc[0] = loc[0] - 1;
+            } else if (num >= 6 && num <= 7) {
+                loc[1] = loc[1] - 1;
+                if (loc[1] < 3) {
+                    loc[1] = loc[1] + 1;
+                }
+            } else {
+                loc[1] = loc[1] + 1;
+                if (loc[1] > 73) {
+                    loc[1] = loc[1] - 1;
+                }
+            }
+            world[loc[0]][loc[1]][worldX][worldY] = '#';
+        }
+        pathNS[2] = loc[0];
+        pathNS[3] = loc[1];
+    } else {
+        pathNS[0] = start;
+        pathNS[1] = 0;
+        world[0][start][worldX][worldY] = '#';
+
+        int loc[] = {1, start};
+        world[loc[0]][loc[1]][worldX][worldY] = '#';
+
+        while (loc[0] < 20) {
+            int num = rand() % 10;
+
+            if (num < 6) {
+                loc[0] = loc[0] + 1;
+            } else if (num >= 6 && num <= 7) {
+                loc[1] = loc[1] - 1;
+                if (loc[1] < 3) {
+                    loc[1] = loc[1] + 1;
+                }
+            } else {
+                loc[1] = loc[1] + 1;
+                if (loc[1] > 73) {
+                    loc[1] = loc[1] - 1;
+                }
+            }
+            world[loc[0]][loc[1]][worldX][worldY] = '#';
+        }
+        pathNS[2] = loc[0];
+        pathNS[3] = loc[1];
     }
 }
 
@@ -184,7 +322,7 @@ void genRandomObj(int worldX, int worldY) {
     }
 }
 
-void genSeed(int worldX, int worldY) {
+void genSeed(int worldX, int worldY, int pathLoc[3]) {
     int i, j;
     for (i = 0; i < 21; i++) {
         for (j = 0; j < 80; j++) {
@@ -205,10 +343,28 @@ void genSeed(int worldX, int worldY) {
     genTallGrass(worldX, worldY);
     genTallGrass(worldX, worldY);
     genTallGrass(worldX, worldY);
-    genNorthSouthPath(worldX, worldY);
-    genEastWestPath(worldX, worldY);
+    genNorthSouthPath(worldX, worldY, pathLoc);
+    genEastWestPath(worldX, worldY, pathLoc);
     genCenterAndMart(worldX, worldY);
     genRandomObj(worldX, worldY);
+
+    for (i = 0; i < 21; i++) {
+        if (world[i][0][worldX][worldY] != '%' && world[i][0][worldX][worldY] != '#') {
+            world[i][0][worldX][worldY] = '%';
+        }
+        if (world[i][79][worldX][worldY] != '%' && world[i][79][worldX][worldY] != '#') {
+            world[i][79][worldX][worldY] = '%';
+        }
+    }
+
+    for (i = 0; i < 80; i++) {
+        if (world[0][i][worldX][worldY] != '%' && world[0][i][worldX][worldY] != '#') {
+            world[0][i][worldX][worldY] = '%';
+        }
+        if (world[20][i][worldX][worldY] != '%' && world[20][i][worldX][worldY] != '#') {
+            world[20][i][worldX][worldY] = '%';
+        }
+    }
 }
 
 void printSeed(int worldX, int worldY) {
@@ -233,8 +389,15 @@ void printSeed(int worldX, int worldY) {
 int main(void) {
     int x = 199;
     int y = 199;
+
+    int pathLoc[3];
+    pathLoc[0] = -1;
+    pathLoc[1] = -1;
+    // 0 is North, 1 is South, 2 is East, 3 is West
+    pathLoc[2] = -1;
+
     srand(time(0));
-    genSeed(x, y);
+    genSeed(x, y, pathLoc);
     printSeed(x, y);
     char input;
 
@@ -244,35 +407,47 @@ int main(void) {
             case 'n':
                 y++;
                 if (world[0][0][x][y] != '%') {
-                    genSeed(x, y);
+                    pathLoc[0] = pathNS[0];
+                    pathLoc[1] = pathNS[1];
+                    pathLoc[2] = 0;
+                    genSeed(x, y, pathLoc);
                 }
                 printSeed(x, y);
                 break;
             case 's':
                 y--;
                 if (world[0][0][x][y] != '%') {
-                    genSeed(x, y);
-                }
-                printSeed(x, y);
-                break;
-            case 'e':
-                x++;
-                if (world[0][0][x][y] != '%') {
-                    genSeed(x, y);
+                    pathLoc[0] = pathNS[2];
+                    pathLoc[1] = pathNS[3];
+                    pathLoc[2] = 1;
+                    genSeed(x, y, pathLoc);
                 }
                 printSeed(x, y);
                 break;
             case 'w':
+                x++;
+                if (world[0][0][x][y] != '%') {
+                    pathLoc[0] = pathEW[0];
+                    pathLoc[1] = pathEW[1];
+                    pathLoc[2] = 2;
+                    genSeed(x, y, pathLoc);
+                }
+                printSeed(x, y);
+                break;
+            case 'e':
                 x--;
                 if (world[0][0][x][y] != '%') {
-                    genSeed(x, y);
+                    pathLoc[0] = pathEW[2];
+                    pathLoc[1] = pathEW[3];
+                    pathLoc[2] = 3;
+                    genSeed(x, y, pathLoc);
                 }
                 printSeed(x, y);
                 break;
             case 'f':
                 scanf("%d %d", &x, &y);
                 if (world[0][0][x][y] != '%') {
-                    genSeed(x, y);
+                    genSeed(x, y, pathLoc);
                 }
                 printSeed(x, y);
                 break;
