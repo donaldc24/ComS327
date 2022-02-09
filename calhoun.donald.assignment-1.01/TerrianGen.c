@@ -12,7 +12,6 @@ void genEastWestPath(int worldX, int worldY, int pathLoc[3]) {
     int start = (rand() % 12) + 4;
 
     if (pathLoc[2] == 3) {
-        //printf("%d, %d\n", pathLoc[1], start);
         start = pathLoc[1];
         pathEW[0] = start;
         pathEW[1] = 0;
@@ -43,7 +42,6 @@ void genEastWestPath(int worldX, int worldY, int pathLoc[3]) {
         pathEW[2] = loc[1];
         pathEW[3] = loc[0];
     } else if (pathLoc[2] == 2) {
-        printf("%d, %d\n", pathLoc[0], start);
         start = pathLoc[0];
         pathEW[0] = start;
         pathEW[1] = 79;
@@ -73,7 +71,6 @@ void genEastWestPath(int worldX, int worldY, int pathLoc[3]) {
         }
         pathEW[2] = loc[1];
         pathEW[3] = loc[0];
-        printf("%d, %d\n", loc[1], loc[0]);
     } else {
         pathEW[0] = start;
         pathEW[1] = 0;
@@ -102,7 +99,6 @@ void genEastWestPath(int worldX, int worldY, int pathLoc[3]) {
         }
         pathEW[2] = loc[1];
         pathEW[3] = loc[0];
-        printf("%d, %d\n", loc[1], loc[0]);
     }
 }
 
@@ -138,7 +134,6 @@ void genNorthSouthPath(int worldX, int worldY, int pathLoc[3]) {
         pathNS[2] = loc[0];
         pathNS[3] = loc[1];
     } else if (pathLoc[2] == 0) {
-        //printf("%d, %d\n", pathLoc[0], start);
         start = pathLoc[0];
         pathNS[0] = start;
         pathNS[1] = 20;
@@ -267,44 +262,66 @@ void genTallGrass(int worldX, int worldY) {
       }
 }
 
-void genCenterAndMart(int worldX, int worldY) {
+void genCenterAndMart(int worldX, int worldY, int manhatDist) {
     int centerR1 = 0;
     int centerC1 = 0;
     int centerR2 = 0;
     int centerC2 = 0;
     int check = false;
 
-    while (check == false) {
-        centerR1 = (rand() % 10) + 5;
-        centerC1 = (rand() % 70) + 5;
-        centerR2 = centerR1 + 1;
-        centerC2 = centerC1 + 1;
-        check = isEmpty(centerR1, centerC1, centerR2, centerC1, centerR1, centerC2, centerR2, centerC2, 1, worldX, worldY);
+    if (manhatDist == 0.0) {
+        while (check == false) {
+            centerR1 = (rand() % 10) + 5;
+            centerC1 = (rand() % 70) + 5;
+            centerR2 = centerR1 + 1;
+            centerC2 = centerC1 + 1;
+            check = isEmpty(centerR1, centerC1, centerR2, centerC1, centerR1, centerC2, centerR2, centerC2, 1, worldX, worldY);
+        }
+
+        world[centerR1][centerC1][worldX][worldY] = 'C';
+        world[centerR2][centerC1][worldX][worldY] = 'C';
+        world[centerR1][centerC2][worldX][worldY] = 'C';
+        world[centerR2][centerC2][worldX][worldY] = 'C';
+
+        int martR1 = 0;
+        int martC1 = 0;
+        int martR2 = 0;
+        int martC2 = 0;
+        check = false;
+
+        while (check == false) {
+            martR1 = (rand() % 10) + 5;
+            martC1 = (rand() % 70) + 5;
+            martR2 = martR1 + 1;
+            martC2 = martC1 + 1;
+            check = isEmpty(martR1, martC1, martR2, martC1, martR1, martC2, martR2, martC2, 1, worldX, worldY);
+        }
+
+        world[martR1][martC1][worldX][worldY] = 'M';
+        world[martR2][martC1][worldX][worldY] = 'M';
+        world[martR1][martC2][worldX][worldY] = 'M';
+        world[martR2][martC2][worldX][worldY] = 'M';
+    } else {
+        int num = (rand() % manhatDist);
+        int num2 = (rand() % manhatDist/2);
+
+        //printf("%d, %d, %d\n", num, num2, manhatDist);
+        if (num <= 14 || num == manhatDist || num == manhatDist/2) {
+            genCenterAndMart(worldX, worldY, 0);
+        } else if (manhatDist >= 20 && num < (manhatDist-(num2+(num2/2)+(num2/3)))) {
+            genCenterAndMart(worldX, worldY, 0);
+        } 
+        // else if (manhatDist >= 61 && manhatDist <= 122 && num ) {
+        //     genCenterAndMart(worldX, worldY, 0);
+        // } else if (manhatDist >= 125) {
+        //     genCenterAndMart(worldX, worldY, 0);
+        // }
+        //double placeMarket = (((-45.0 * manhatDist) / 200.0) + 50.0);
+        //printf("%f, %f\n", placeMarket, manhatDist);
+        // if (placeMarket < 100) {
+        //     genCenterAndMart(worldX, worldY, 0.0);
+        // }
     }
-
-    world[centerR1][centerC1][worldX][worldY] = 'C';
-    world[centerR2][centerC1][worldX][worldY] = 'C';
-    world[centerR1][centerC2][worldX][worldY] = 'C';
-    world[centerR2][centerC2][worldX][worldY] = 'C';
-
-    int martR1 = 0;
-    int martC1 = 0;
-    int martR2 = 0;
-    int martC2 = 0;
-    check = false;
-
-    while (check == false) {
-        martR1 = (rand() % 10) + 5;
-        martC1 = (rand() % 70) + 5;
-        martR2 = martR1 + 1;
-        martC2 = martC1 + 1;
-        check = isEmpty(martR1, martC1, martR2, martC1, martR1, martC2, martR2, martC2, 1, worldX, worldY);
-    }
-
-    world[martR1][martC1][worldX][worldY] = 'M';
-    world[martR2][martC1][worldX][worldY] = 'M';
-    world[martR1][martC2][worldX][worldY] = 'M';
-    world[martR2][martC2][worldX][worldY] = 'M';
 }
 
 void genRandomObj(int worldX, int worldY) { 
@@ -322,7 +339,7 @@ void genRandomObj(int worldX, int worldY) {
     }
 }
 
-void genSeed(int worldX, int worldY, int pathLoc[3]) {
+void genSeed(int worldX, int worldY, int pathLoc[3], int manhatDist) {
     int i, j;
     for (i = 0; i < 21; i++) {
         for (j = 0; j < 80; j++) {
@@ -345,7 +362,7 @@ void genSeed(int worldX, int worldY, int pathLoc[3]) {
     genTallGrass(worldX, worldY);
     genNorthSouthPath(worldX, worldY, pathLoc);
     genEastWestPath(worldX, worldY, pathLoc);
-    genCenterAndMart(worldX, worldY);
+    genCenterAndMart(worldX, worldY, manhatDist);
     genRandomObj(worldX, worldY);
 
     for (i = 0; i < 21; i++) {
@@ -391,68 +408,96 @@ int main(void) {
     int y = 199;
 
     int pathLoc[3];
+    int manhatDist = 0;
     pathLoc[0] = -1;
     pathLoc[1] = -1;
     // 0 is North, 1 is South, 2 is East, 3 is West
     pathLoc[2] = -1;
 
     srand(time(0));
-    genSeed(x, y, pathLoc);
+    genSeed(x, y, pathLoc, manhatDist);
     printSeed(x, y);
     char input;
 
     while (input != 'q') {
-        scanf("%c", &input);
+        scanf(" %c", &input);
         switch(input) {
             case 'n':
                 y++;
+                if (y > 398) {
+                    printf("Out of bounds\n");
+                    y--;
+                }
                 if (world[0][0][x][y] != '%') {
+                    manhatDist = abs(199 - x) + abs(199 - y);
                     pathLoc[0] = pathNS[0];
                     pathLoc[1] = pathNS[1];
                     pathLoc[2] = 0;
-                    genSeed(x, y, pathLoc);
+                    genSeed(x, y, pathLoc, manhatDist);
                 }
                 printSeed(x, y);
                 break;
             case 's':
                 y--;
+                if (y < 0) {
+                    printf("Out of bounds\n");
+                    y++;
+                }
                 if (world[0][0][x][y] != '%') {
+                    manhatDist = abs(199 - x) + abs(199 - y);
                     pathLoc[0] = pathNS[2];
                     pathLoc[1] = pathNS[3];
                     pathLoc[2] = 1;
-                    genSeed(x, y, pathLoc);
+                    genSeed(x, y, pathLoc, manhatDist);
                 }
                 printSeed(x, y);
                 break;
             case 'w':
                 x++;
+                if (x > 398) {
+                    printf("Out of bounds\n");
+                    x--;
+                }
                 if (world[0][0][x][y] != '%') {
+                    manhatDist = abs(199 - x) + abs(199 - y);
                     pathLoc[0] = pathEW[0];
                     pathLoc[1] = pathEW[1];
                     pathLoc[2] = 2;
-                    genSeed(x, y, pathLoc);
+                    genSeed(x, y, pathLoc, manhatDist);
                 }
                 printSeed(x, y);
                 break;
             case 'e':
                 x--;
+                if (x < 0) {
+                    printf("Out of bounds\n");
+                    x++;
+                }
                 if (world[0][0][x][y] != '%') {
+                    manhatDist = abs(199 - x) + abs(199 - y);
                     pathLoc[0] = pathEW[2];
                     pathLoc[1] = pathEW[3];
                     pathLoc[2] = 3;
-                    genSeed(x, y, pathLoc);
+                    genSeed(x, y, pathLoc, manhatDist);
                 }
                 printSeed(x, y);
                 break;
             case 'f':
                 scanf("%d %d", &x, &y);
+                if (x > 398 || y > 398 || x < 0 || y < 0) {
+                    printf("Out of bounds, returned to start\n");
+                    x = 199;
+                    y = 199;
+                }
                 if (world[0][0][x][y] != '%') {
-                    genSeed(x, y, pathLoc);
+                    manhatDist = abs(199 - x) + abs(199 - y);
+                    genSeed(x, y, pathLoc, manhatDist);
                 }
                 printSeed(x, y);
                 break;
             default:
-                // printf("%c is not a valid input, please try n, s, e, w, or f x y!\n", input);
+                printf(" Not a valid input, please try n, s, e, w, or f x y!\n");
+                printSeed(x, y);
                 break;
         }
     }
