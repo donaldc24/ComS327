@@ -100,6 +100,12 @@ void genEastWestPath(int worldX, int worldY, int pathLoc[3]) {
         pathEW[2] = loc[1];
         pathEW[3] = loc[0];
     }
+    if (worldX == 398) {
+        world[start][0][worldX][worldY] = '%';
+    }
+    if (worldX == 0) {
+        world[pathEW[3]][79][worldX][worldY] = '%';
+    }
 }
 
 void genNorthSouthPath(int worldX, int worldY, int pathLoc[3]) {
@@ -190,6 +196,12 @@ void genNorthSouthPath(int worldX, int worldY, int pathLoc[3]) {
         }
         pathNS[2] = loc[0];
         pathNS[3] = loc[1];
+    }
+    if (worldY == 398) {
+        world[0][start][worldX][worldY] = '%';
+    }
+    if (worldY == 0) {
+        world[20][pathNS[3]][worldX][worldY] = '%';
     }
 }
 
