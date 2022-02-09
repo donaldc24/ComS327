@@ -1,0 +1,40 @@
+1.02:
+9c395fa (HEAD -> main, origin/main, origin/HEAD) Added world boundaries
+3ed6842 Added probabilities for mart/ceneter generation, and added error handling
+2955adb Fixed where paths werent lining up, they now line up
+6dfa8c0 Added random seed gen for all maps when moving around
+87efcc1 Changed seed generation slightly, simplified paths due to slight bug, also changed probabilities for tall grass gen
+21ee22f Changed seed array to 4d array to navigate multiple maps, while also tweaking input from terminal
+d4fad72 Started on 1.02, added functionality to get input from terminal
+76a9110 Made README, CHANGELOG, Makefile, and tarball
+4f955dd Tweaked the generation odds of tall grass and fixed slight bug
+217c50a Fixed small path gen bug
+72b0fde Added some color to make different types more noticible
+b96dfa8 Added tall grass generation and played around to fix segmentation fault errors. Also added in random object generation like boulders/trees
+b3d422d Worked on adding back in PokeMarts and PokeCenter generation, with them spawning next to a path. Also started on tall grass gen
+0501f4c Added chance for a seed  with multiple paths
+0c4558d Commented out pokemarts and pokecenters temperarily and got path gen working
+3d5af72 Added pokemarts and pokecenters to terrian
+3802395 Cleaned folder
+
+1.01:
+4f955dd (HEAD -> main, origin/main, origin/HEAD) Tweaked the generation odds of tall grass and fixed slight bug
+217c50a Fixed small path gen bug
+72b0fde Added some color to make different types more noticible
+b96dfa8 Added tall grass generation and played around to fix segmentation fault errors. Also added in random object generation like boulders/trees
+b3d422d Worked on adding back in PokeMarts and PokeCenter generation, with them spawning next to a path. Also started on tall grass gen
+0501f4c Added chance for a seed  with multiple paths
+0c4558d Commented out pokemarts and pokecenters temperarily and got path gen working
+3d5af72 Added pokemarts and pokecenters to terrian
+3802395 Cleaned folder
+4047abc Basic map gen
+4c4b61c Delete documents directory
+6474703 Delete backend directory
+2115a04 Delete experiments directory
+d56b2a9 Delete frontend directory
+08f2941 Got basic map generated
+677144d Add new directory
+d852f42 Add new directory
+5a3e0f8 Add new directory
+96df577 Add new directory
+
