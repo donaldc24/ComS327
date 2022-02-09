@@ -400,7 +400,7 @@ void printSeed(int worldX, int worldY) {
     }
 }
 
-int checkMap(int x, int y) {
+void checkMap(int x, int y) {
     pathResult[0] = 0;
     pathResult[1] = 0;
     pathResult[2] = 0;
