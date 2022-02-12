@@ -9,6 +9,8 @@ int entry[8];
 int exitt[8];
 int pathResult[4];
 
+int pc[2];
+
 char world[21][80][399][399];
 int pathNS[4];
 int pathEW[4];
@@ -270,6 +272,41 @@ void genTallGrass(int worldX, int worldY) {
       }
 }
 
+void genWater(int worldX, int worldY) {
+    int row = (rand() % 10) + 5;
+    int col = (rand() % 70) + 5;
+    int origCol = col;
+    int rows[8];
+    int count = 0;
+
+    while (count <= 5 && world[row][col][worldX][worldY] == '.' && row > 4 && row < 16) {
+        rows[count] = row;
+        world[row][col][worldX][worldY] = ',';
+        row = row + 1;
+        int count2 = 0;
+        col = origCol;
+        while (count2 < 8 && world[row][col][worldX][worldY] == '.' && col > 4 && row < 76) {
+            if (world[row][col][worldX][worldY] == '.' && col > 4 && col < 76) {
+                world[row][col][worldX][worldY] = ',';
+            }
+            col = col + 1;
+            count2++;
+        }
+        count++;
+    }
+
+    if (count < 3) {
+        for (int i = 0; i < 8; i++) {
+            if (rows[i] != 0 && rows[i] > 4 && rows[i] < 16) {
+                world[rows[i]][col][worldX][worldY] = '.'; 
+            } else {
+                break;
+            }
+        }
+        genWater(worldX, worldY);
+      }
+}
+
 void genCenterAndMart(int worldX, int worldY, int manhatDist) {
     int centerR1 = 0;
     int centerC1 = 0;
@@ -357,6 +394,8 @@ void genSeed(int worldX, int worldY, int pathLoc[4], int manhatDist) {
     genTallGrass(worldX, worldY);
     genTallGrass(worldX, worldY);
     genTallGrass(worldX, worldY);
+    genWater(worldX, worldY);
+    genWater(worldX, worldY);
     genNorthSouthPath(worldX, worldY, pathLoc);
     genEastWestPath(worldX, worldY, pathLoc);
     genCenterAndMart(worldX, worldY, manhatDist);
@@ -391,7 +430,11 @@ void printSeed(int worldX, int worldY) {
             } else if (world[i][j][worldX][worldY] == ':' || world[i][j][worldX][worldY] == '.') {
                 printf("\033[0;32m%c", world[i][j][worldX][worldY]);
             } else if (world[i][j][worldX][worldY] == 'C' || world[i][j][worldX][worldY] == 'M') {
+                printf("\033[0;36m%c", world[i][j][worldX][worldY]);
+            } else if (world[i][j][worldX][worldY] == '@') {
                 printf("\033[0;35m%c", world[i][j][worldX][worldY]);
+            } else if (world[i][j][worldX][worldY] == ',') {
+                printf("\033[0;34m%c", world[i][j][worldX][worldY]);
             } else {
                 printf("\033[0;37m%c", world[i][j][worldX][worldY]);
             }
@@ -491,6 +534,17 @@ void checkMap(int x, int y) {
     }
 }
 
+void setPlayer(int x, int y) {
+    pc[0] = (rand() % 18) + 1;
+    for (int i = 1; i < 80; i++) {
+        if (world[pc[0]][i][x][y] == '#') {
+            world[pc[0]][i][x][y] = '@';
+            pc[1] = i;
+            return;
+        }
+    }
+}
+
 int main(void) {
     int x = 199;
     int y = 199;
@@ -498,6 +552,7 @@ int main(void) {
 
     srand(time(0));
     genSeed(x, y, pathResult, manhatDist);
+    setPlayer(x, y);
     printSeed(x, y);
     char input;
 
@@ -515,6 +570,7 @@ int main(void) {
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
                 }
+                setPlayer(x, y);
                 printSeed(x, y);
                 break;
             case 's':
@@ -528,6 +584,7 @@ int main(void) {
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
                 }
+                setPlayer(x, y);
                 printSeed(x, y);
                 break;
             case 'e':
@@ -541,6 +598,7 @@ int main(void) {
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
                 }
+                setPlayer(x, y);
                 printSeed(x, y);
                 break;
             case 'w':
@@ -554,6 +612,7 @@ int main(void) {
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
                 }
+                setPlayer(x, y);
                 printSeed(x, y);
                 break;
             case 'f':
@@ -568,8 +627,11 @@ int main(void) {
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
                 }
+                setPlayer(x, y);
                 printSeed(x, y);
                 break;
+            case 'h':
+                printf("Hello");
             default:
                 printf(" Not a valid input, please try n, s, e, w, or f x y!\n");
                 printSeed(x, y);
