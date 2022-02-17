@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <limits.h>
 #define true 1
 #define false 0
 
@@ -10,10 +11,124 @@ int exitt[8];
 int pathResult[4];
 
 int pc[2];
+int weightMap[21][80];
 
 char world[21][80][399][399];
 int pathNS[4];
 int pathEW[4];
+
+// Structure that I found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
+typedef struct node {
+    int data;
+ 
+    // Lower values indicate higher priority
+    int priority;
+ 
+    struct node* next;
+ 
+} Node;
+ 
+// Function to Create A New Node, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
+Node* newNode(int d, int p)
+{
+    Node* temp = (Node*)malloc(sizeof(Node));
+    temp->data = d;
+    temp->priority = p;
+    temp->next = NULL;
+ 
+    return temp;
+}
+ 
+// Return the value at head, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
+int peek(Node** head)
+{
+    return (*head)->data;
+}
+ 
+// Removes the element with the
+// highest priority form the list, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
+void pop(Node** head)
+{
+    Node* temp = *head;
+    (*head) = (*head)->next;
+    free(temp);
+}
+ 
+// Function to push according to priority, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
+void push(Node** head, int d, int p)
+{
+    Node* start = (*head);
+ 
+    // Create new Node
+    Node* temp = newNode(d, p);
+ 
+    // Special Case: The head of list has lesser
+    // priority than new node. So insert new
+    // node before head node and change head node.
+    if ((*head)->priority > p) {
+ 
+        // Insert New Node before head
+        temp->next = *head;
+        (*head) = temp;
+    }
+    else {
+ 
+        // Traverse the list and find a
+        // position to insert new node
+        while (start->next != NULL &&
+            start->next->priority < p) {
+            start = start->next;
+        }
+ 
+        // Either at the ends of the list
+        // or at required position
+        temp->next = start->next;
+        start->next = temp;
+    }
+}
+ 
+// Function to check is list is empty, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
+int isEmptyQ(Node** head)
+{
+    return (*head) == NULL;
+}
+
+void dijkstra(int graph[21][80], int src) {
+    int dist[80*21];
+    int vis[80*21];
+
+    for (int i = 0; i < 80*21; i++) {
+        dist[i] = INT_MAX;
+        vis[i] = INT_MAX;
+    }
+
+    dist[src] = 0;
+    Node* pq = newNode(src, 0);
+
+    while (!isEmptyQ(&pq)) {
+        int u = peek(&pq);
+
+        int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
+        for (int i = 0; i < 8; i++) {
+            int v = neighbors[i];
+            int alt = dist[u] + graph[0][v];
+
+            if (v < 1680 && v >= 0 && alt < dist[v]) {
+                dist[v] = alt;
+                src = v;
+                vis[v] = u;
+                push(&pq, v, alt);
+            }
+        }
+        pop(&pq);
+    }
+
+    for (int i = 0; i < (80*21); i++) {
+        if (vis[i] < 1680 && vis[i] >= 0 && weightMap[0][i] != INT_MAX) {
+            weightMap[0][i] = vis[i];
+        }
+    }
+}
 
 void genEastWestPath(int worldX, int worldY, int pathLoc[4]) {
     int start = (rand() % 12) + 4;
@@ -545,6 +660,77 @@ void setPlayer(int x, int y) {
     }
 }
 
+void fillWeightMap(int x, int y, int type) {
+    // Hiker, Rival, Boater, Player
+    //   0      1       2      3  
+    int tallG[4] = {15, 20, 20, 20};
+    int clearing[4] = {10, 12, 12, 12};
+    int path[4] = {10, 10, 10, 10};
+    int water[4] = {INT_MAX, INT_MAX, 20, INT_MAX};
+
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 80; j++) {
+            char c = world[i][j][x][y];
+            switch(c) {
+                case ':':
+                    weightMap[i][j] = tallG[type];
+                    break;
+                case '#':
+                    weightMap[i][j] = path[type];
+                    break;
+                case ',':
+                    weightMap[i][j] = water[type];
+                    break;
+                case '.':
+                    weightMap[i][j] = clearing[type];
+                    break;
+                default:
+                    weightMap[i][j] = INT_MAX;
+                    break;
+            }
+            weightMap[0][j] = INT_MAX;
+            weightMap[20][j] = INT_MAX;
+        }
+        weightMap[i][0] = INT_MAX;
+        weightMap[i][79] = INT_MAX;
+    }
+}
+
+void printWM(void) {
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 80; j++) {
+            int n = weightMap[i][j];
+            if (n == INT_MAX || n == -INT_MAX) {
+                printf("  ");
+            } else {
+                printf("%02d ", abs(n) % 100);
+            }
+        }
+        printf("\n");
+    }
+}
+
+void getDistMaps(int x, int y) {
+    // Hiker
+    printf("Hiker");
+    fillWeightMap(x, y, 0);
+    int num = 80*pc[0] + pc[1];
+    dijkstra(weightMap, num);
+    printWM();
+
+    // Rival
+    printf("Rival");
+    fillWeightMap(x, y, 1);
+    dijkstra(weightMap, num);
+    printWM();
+
+    // Boater
+    printf("Boater");
+    fillWeightMap(x, y, 2);
+    dijkstra(weightMap, num);
+    printWM();
+}
+
 int main(void) {
     int x = 199;
     int y = 199;
@@ -553,6 +739,7 @@ int main(void) {
     srand(time(0));
     genSeed(x, y, pathResult, manhatDist);
     setPlayer(x, y);
+    getDistMaps(x, y);
     printSeed(x, y);
     char input;
 
@@ -569,8 +756,9 @@ int main(void) {
                     checkMap(x, y);
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
+                    setPlayer(x, y);
                 }
-                setPlayer(x, y);
+                getDistMaps(x, y);
                 printSeed(x, y);
                 break;
             case 's':
@@ -583,8 +771,9 @@ int main(void) {
                     checkMap(x, y);
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
+                    setPlayer(x, y);
                 }
-                setPlayer(x, y);
+                getDistMaps(x, y);
                 printSeed(x, y);
                 break;
             case 'e':
@@ -597,8 +786,9 @@ int main(void) {
                     checkMap(x, y);
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
+                    setPlayer(x, y);
                 }
-                setPlayer(x, y);
+                getDistMaps(x, y);
                 printSeed(x, y);
                 break;
             case 'w':
@@ -611,8 +801,9 @@ int main(void) {
                     checkMap(x, y);
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
+                    setPlayer(x, y);
                 }
-                setPlayer(x, y);
+                getDistMaps(x, y);
                 printSeed(x, y);
                 break;
             case 'f':
@@ -626,12 +817,11 @@ int main(void) {
                     checkMap(x, y);
                     manhatDist = abs(199 - x) + abs(199 - y);
                     genSeed(x, y, pathResult, manhatDist);
+                    setPlayer(x, y);
                 }
-                setPlayer(x, y);
+                getDistMaps(x, y);
                 printSeed(x, y);
                 break;
-            case 'h':
-                printf("Hello");
             default:
                 printf(" Not a valid input, please try n, s, e, w, or f x y!\n");
                 printSeed(x, y);
