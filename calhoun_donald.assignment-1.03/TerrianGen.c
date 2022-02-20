@@ -1,3 +1,6 @@
+// For the Priority Queue used I used the one I found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
+// Functions that are not my own and were found on this website are: struct node, newNode, peek, pop, push, isEmptyQ
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -29,8 +32,7 @@ typedef struct node {
 } Node;
  
 // Function to Create A New Node, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
-Node* newNode(int d, int p)
-{
+Node* newNode(int d, int p) {
     Node* temp = (Node*)malloc(sizeof(Node));
     temp->data = d;
     temp->priority = p;
@@ -40,23 +42,20 @@ Node* newNode(int d, int p)
 }
  
 // Return the value at head, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
-int peek(Node** head)
-{
+int peek(Node** head) {
     return (*head)->data;
 }
  
 // Removes the element with the
 // highest priority form the list, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
-void pop(Node** head)
-{
+void pop(Node** head) {
     Node* temp = *head;
     (*head) = (*head)->next;
     free(temp);
 }
  
 // Function to push according to priority, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
-void push(Node** head, int d, int p)
-{
+void push(Node** head, int d, int p) {
     Node* start = (*head);
  
     // Create new Node
@@ -88,18 +87,17 @@ void push(Node** head, int d, int p)
 }
  
 // Function to check is list is empty, found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
-int isEmptyQ(Node** head)
-{
+int isEmptyQ(Node** head) {
     return (*head) == NULL;
 }
 
 void dijkstra(int graph[21][80], int src) {
     int dist[80*21];
-    int vis[80*21];
+    int prev[80*21];
 
     for (int i = 0; i < 80*21; i++) {
         dist[i] = INT_MAX;
-        vis[i] = INT_MAX;
+        prev[i] = INT_MAX;
     }
 
     dist[src] = 0;
@@ -107,16 +105,16 @@ void dijkstra(int graph[21][80], int src) {
 
     while (!isEmptyQ(&pq)) {
         int u = peek(&pq);
+        src = u;
 
         int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
         for (int i = 0; i < 8; i++) {
             int v = neighbors[i];
             int alt = dist[u] + graph[0][v];
 
-            if (v < 1680 && v >= 0 && alt < dist[v]) {
+            if (v < 1680 && v >= 0 && alt < dist[v] && alt > 0) {
                 dist[v] = alt;
-                src = v;
-                vis[v] = u;
+                prev[v] = u;
                 push(&pq, v, alt);
             }
         }
@@ -124,9 +122,7 @@ void dijkstra(int graph[21][80], int src) {
     }
 
     for (int i = 0; i < (80*21); i++) {
-        if (vis[i] < 1680 && vis[i] >= 0 && weightMap[0][i] != INT_MAX) {
-            weightMap[0][i] = vis[i];
-        }
+        weightMap[0][i] = dist[i];
     }
 }
 
@@ -712,23 +708,26 @@ void printWM(void) {
 
 void getDistMaps(int x, int y) {
     // Hiker
-    printf("Hiker");
+    printf("Hiker\n");
     fillWeightMap(x, y, 0);
     int num = 80*pc[0] + pc[1];
     dijkstra(weightMap, num);
     printWM();
+    printf("\n");
 
     // Rival
     printf("Rival");
     fillWeightMap(x, y, 1);
     dijkstra(weightMap, num);
     printWM();
+    printf("\n");
 
     // Boater
     printf("Boater");
     fillWeightMap(x, y, 2);
     dijkstra(weightMap, num);
     printWM();
+    printf("\n");
 }
 
 int main(void) {
