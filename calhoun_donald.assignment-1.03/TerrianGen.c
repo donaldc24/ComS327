@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
+#include <unistd.h>
+#include <string.h>
 #define true 1
 #define false 0
 
@@ -546,8 +548,10 @@ void printSeed(int worldX, int worldY) {
                 printf("\033[0;35m%c", world[i][j][worldX][worldY]);
             } else if (world[i][j][worldX][worldY] == ',') {
                 printf("\033[0;34m%c", world[i][j][worldX][worldY]);
-            } else {
+            } else if (world[i][j][worldX][worldY] == '%') {
                 printf("\033[0;37m%c", world[i][j][worldX][worldY]);
+            } else {
+                printf("\033[0;35m%c", world[i][j][worldX][worldY]);
             }
         }
         printf("\033[0;37m\n");
@@ -730,21 +734,92 @@ void getDistMaps(int x, int y) {
     printf("\n");
 }
 
+void placeNPCs(int amt, int x, int y) {
+    int i = 0;
+    char types[7] = {'h', 'r', 'b', 'p', 'w', 's', 'n'};
+    int tallG[7] = {15, 20, 20, 20, INT_MAX, INT_MAX, 20};
+    int clearing[7] = {10, 12, 12, 12, INT_MAX, INT_MAX, 12};
+    int path[7] = {10, 10, 10, 10, INT_MAX, INT_MAX, 10};
+    int water[7] = {INT_MAX, INT_MAX, 20, INT_MAX, INT_MAX, INT_MAX, INT_MAX};
+
+    while (i < amt) {
+        int row = (rand() % 15) + 2;
+        int col = (rand() % 75) + 2;
+        int t = (rand() % 6);
+
+        if (i < 7) {
+            t = i;
+        }
+
+        if (world[row][col][x][y] != 'M' && world[row][col][x][y] != 'C' && world[row][col][x][y] != '#' && world[row][col][x][y] != '%' && world[row][col][x][y] != 'h' && world[row][col][x][y] != 'r' && world[row][col][x][y] != 'p' && world[row][col][x][y] != 'w' && world[row][col][x][y] != 's' && world[row][col][x][y] != 'n' && world[row][col][x][y] != 'b' && world[row][col][x][y] != '@') {
+            if (t == 4) {
+                switch(world[row][col][x][y]) {
+                    case ':':
+                        tallG[t] = 5;
+                        break;
+                    case ',':
+                        water[t] = 5;
+                        break;
+                    case '.':
+                        clearing[t] = 5;
+                        break;
+                }
+                world[row][col][x][y] = types[t];
+                i++;
+            } else if (t == 5) {
+                if (world[row][col][x][y] != ',') {
+                    world[row][col][x][y] = types[t];
+                    i++;
+                }
+            } else {
+                char c = world[row][col][x][y];
+                switch(c) {
+                    case ':':
+                        if (tallG[t] != INT_MAX) {
+                            world[row][col][x][y] = types[t];
+                            i++;
+                        }
+                        break;
+                    case ',':
+                        if (water[t] != INT_MAX) {
+                            world[row][col][x][y] = types[t];
+                            i++;
+                        }
+                        break;
+                    case '.':
+                        if (clearing[t] != INT_MAX) {
+                            world[row][col][x][y] = types[t];
+                            i++;
+                        }
+                        break;
+                }
+            }
+
+        }
+    }
+}
+
+void runMaps(int x, int y, int numT) {
+    placeNPCs(numT, x, y);
+    printSeed(x, y);
+}
+
 int main(void) {
     int x = 199;
     int y = 199;
+    int numTrainers = 10;
     int manhatDist = 0;
 
     srand(time(0));
     genSeed(x, y, pathResult, manhatDist);
     setPlayer(x, y);
     getDistMaps(x, y);
-    printSeed(x, y);
-    char input;
+    runMaps(x, y, numTrainers);
+    char input[100];
 
-    while (input != 'q') {
-        scanf(" %c", &input);
-        switch(input) {
+    while (input[0] != 'q') {
+        scanf(" %s", &input);
+        switch(input[0]) {
             case 'n':
                 y++;
                 if (y > 398) {
@@ -758,7 +833,7 @@ int main(void) {
                     setPlayer(x, y);
                 }
                 getDistMaps(x, y);
-                printSeed(x, y);
+                runMaps(x, y, numTrainers);
                 break;
             case 's':
                 y--;
@@ -773,7 +848,7 @@ int main(void) {
                     setPlayer(x, y);
                 }
                 getDistMaps(x, y);
-                printSeed(x, y);
+                runMaps(x, y, numTrainers);
                 break;
             case 'e':
                 x++;
@@ -788,7 +863,7 @@ int main(void) {
                     setPlayer(x, y);
                 }
                 getDistMaps(x, y);
-                printSeed(x, y);
+                runMaps(x, y, numTrainers);
                 break;
             case 'w':
                 x--;
@@ -803,7 +878,7 @@ int main(void) {
                     setPlayer(x, y);
                 }
                 getDistMaps(x, y);
-                printSeed(x, y);
+                runMaps(x, y, numTrainers);
                 break;
             case 'f':
                 scanf("%d %d", &x, &y);
@@ -819,7 +894,16 @@ int main(void) {
                     setPlayer(x, y);
                 }
                 getDistMaps(x, y);
-                printSeed(x, y);
+                runMaps(x, y, numTrainers);
+                break;
+            case '-':
+                int tempTrainers = numTrainers;
+                scanf("%d", &tempTrainers);
+                for (int k = 0; k < 13; k++) {
+                    if (input[1] == '-' && input[2] == 'n' && input[3] == 'u' && input[4] == 'm' && input[5] == 't' && input[6] == 'r' && input[7] == 'a' && input[8] == 'i' && input[9] == 'n' && input[10] == 'e' && input[11] == 'r' && input[12] == 's') {
+                        numTrainers = tempTrainers;
+                    }
+                }
                 break;
             default:
                 printf(" Not a valid input, please try n, s, e, w, or f x y!\n");
