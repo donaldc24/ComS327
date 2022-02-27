@@ -741,7 +741,7 @@ void moveNPC(int x, int y, int time, int mapH[21][80], int mapR[21][80], int map
     int cost = 0;
     int i = 0;
     while (hLoc[i] != 0 || rLoc[i] != 0 || bLoc[i] != 0) {
-        if (hLoc[i] != 0) {
+        if (hLoc[i] > 0) {
             int src = hLoc[i];
             int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
             int sml = neighbors[0];
@@ -755,7 +755,7 @@ void moveNPC(int x, int y, int time, int mapH[21][80], int mapR[21][80], int map
             hLocNew[i] = sml;
             push(&pqNPC, sml, cost);
         } 
-        if (rLoc[i] != 0) {
+        if (rLoc[i] > 0) {
             int src = rLoc[i];
             int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
             int sml = neighbors[0];
@@ -769,7 +769,7 @@ void moveNPC(int x, int y, int time, int mapH[21][80], int mapR[21][80], int map
             rLocNew[i] = sml;
             push(&pqNPC, sml, cost);
         } 
-        if (bLoc[i] != 0) {
+        if (bLoc[i] > 0) {
             int src = bLoc[i];
             int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
             int sml = neighbors[0];
@@ -962,7 +962,7 @@ void placeNPCs(int amt, int x, int y) {
     }
 }
 
-void changeNPCLoc(int x, int y, int u) {
+void changeNPCLoc(int x, int y, int u, int stop) {
     for (int i = 0; i < 100; i++) {
         if (hLocNew[i] == u) {
             world[0][hLoc[i]][x][y] = hLocPrev[i];
@@ -970,6 +970,9 @@ void changeNPCLoc(int x, int y, int u) {
             world[0][u][x][y] = 'h';
             hLocPrev[i] = prev;
             hLoc[i] = u;
+            if (stop == true) {
+                hLoc[i] = -1;
+            }
         }
         if (rLocNew[i] == u) {
             world[0][rLoc[i]][x][y] = rLocPrev[i];
@@ -977,6 +980,9 @@ void changeNPCLoc(int x, int y, int u) {
             world[0][u][x][y] = 'r';
             rLocPrev[i] = prev;
             rLoc[i] = u;
+            if (stop == true) {
+                rLoc[i] = -1;
+            }
         }
         if (bLocNew[i] == u) {
             world[0][bLoc[i]][x][y] = bLocPrev[i];
@@ -984,6 +990,9 @@ void changeNPCLoc(int x, int y, int u) {
             world[0][u][x][y] = 'b';
             bLocPrev[i] = prev;
             bLoc[i] = u;
+            if (stop == true) {
+                bLoc[i] = -1;
+            }
         }
     }
 }
@@ -992,20 +1001,31 @@ void runMaps(int x, int y, int numT) {
     placeNPCs(numT, x, y);
     printSeed(x, y);
     pqNPC = newNode(INT_MAX, INT_MAX);
+    int playerLocation = 80*pc[0] + pc[1];
     int time = 0;
+    int stop = false;
     while (1 == 1) {
         usleep(250000);
         int i = 0;
         getDistMaps(x, y, time);
         while (i < 6 && !isEmptyQ(&pqNPC)) {
             int u = peek(&pqNPC);
+            int neighbors[8] = {u-80, u+80, u+1, u-1, u-81, u-79, u+79, u+81};
+            for (int j = 0; j < 8; j++) {
+                if (neighbors[j] == playerLocation) {
+                    stop = true;
+                }
+            }
             if (u == INT_MAX) {
                 break;
             }
-            changeNPCLoc(x, y, u);
-            pop(&pqNPC);
+            changeNPCLoc(x, y, u, stop);
+            if (stop == true) {
+                stop = false;
+            } 
             usleep(250000);
             printSeed(x, y);
+            pop(&pqNPC);
             i++;
         }
         time++;
