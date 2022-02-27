@@ -10,18 +10,6 @@
 #define true 1
 #define false 0
 
-//[0] is WE, [1] is NS
-int entry[8];
-int exitt[8];
-int pathResult[4];
-
-int pc[2];
-int weightMap[21][80];
-
-char world[21][80][399][399];
-int pathNS[4];
-int pathEW[4];
-
 // Structure that I found on https://www.geeksforgeeks.org/priority-queue-using-linked-list/
 typedef struct node {
     int data;
@@ -92,6 +80,44 @@ void push(Node** head, int d, int p) {
 int isEmptyQ(Node** head) {
     return (*head) == NULL;
 }
+
+//[0] is WE, [1] is NS
+int entry[8];
+int exitt[8];
+int pathResult[4];
+
+int pc[2];
+int weightMap[21][80];
+
+char world[21][80][399][399];
+int pathNS[4];
+int pathEW[4];
+
+//store locations of NPCs
+int hLoc[100];
+int rLoc[100];
+int bLoc[100];
+int pLoc[100];
+int wLoc[100];
+int sLoc[100];
+int nLoc[100];
+
+int hLocNew[100];
+int rLocNew[100];
+int bLocNew[100];
+int pLocNew[100];
+int wLocNew[100];
+int sLocNew[100];
+int nLocNew[100];
+
+int hLocPrev[100];
+int rLocPrev[100];
+int bLocPrev[100];
+int pLocPrev[100];
+int wLocPrev[100];
+int sLocPrev[100];
+int nLocPrev[100];
+Node* pqNPC; 
 
 void dijkstra(int graph[21][80], int src) {
     int dist[80*21];
@@ -710,28 +736,84 @@ void printWM(void) {
     }
 }
 
-void getDistMaps(int x, int y) {
+void moveNPC(int x, int y, int time, int mapH[21][80], int mapR[21][80], int mapB[21][80]) {
+    //'h', 'r', 'b', 'p', 'w', 's', 'n'
+    int cost = 0;
+    int i = 0;
+    while (hLoc[i] != 0 || rLoc[i] != 0 || bLoc[i] != 0) {
+        if (hLoc[i] != 0) {
+            int src = hLoc[i];
+            int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
+            int sml = neighbors[0];
+            for (int j = 1; j < 8; j++) {
+                int n = neighbors[j];
+                if ((n > 80 && n < 1600 && mapH[0][n] < mapH[0][sml] && world[0][n][x][y] != '@') || sml <= 0) {
+                    sml = n;
+                }
+            }
+            cost = time + mapH[0][sml];
+            hLocNew[i] = sml;
+            push(&pqNPC, sml, cost);
+        } 
+        if (rLoc[i] != 0) {
+            int src = rLoc[i];
+            int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
+            int sml = neighbors[0];
+            for (int j = 1; j < 8; j++) {
+                int n = neighbors[j];
+                if ((n > 80 && n < 1600 && mapR[0][n] < mapR[0][sml]) || sml <= 0) {
+                    sml = n;
+                }
+            }
+            cost = time + mapR[0][sml];
+            rLocNew[i] = sml;
+            push(&pqNPC, sml, cost);
+        } 
+        if (bLoc[i] != 0) {
+            int src = bLoc[i];
+            int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
+            int sml = neighbors[0];
+            for (int j = 1; j < 8; j++) {
+                int n = neighbors[j];
+                if ((n > 80 && n < 1600 && mapB[0][n] < mapB[0][sml] && world[0][n][x][y] != '@') || sml <= 0) {
+                    sml = n;
+                }
+            }
+            cost = time + mapB[0][sml];
+            bLocNew[i] = sml;
+            push(&pqNPC, sml, cost);
+        }
+        i++;
+    }
+}
+
+void getDistMaps(int x, int y, int time) {
     // Hiker
-    printf("Hiker\n");
     fillWeightMap(x, y, 0);
     int num = 80*pc[0] + pc[1];
     dijkstra(weightMap, num);
-    printWM();
-    printf("\n");
+    int hikerMap[21][80];
+    memcpy(hikerMap, weightMap, sizeof(hikerMap));
+    // printWM();
+    // printf("\n");
 
     // Rival
-    printf("Rival");
     fillWeightMap(x, y, 1);
     dijkstra(weightMap, num);
-    printWM();
-    printf("\n");
+    int rivalMap[21][80];
+    memcpy(rivalMap, weightMap, sizeof(rivalMap));
+    // printWM();
+    // printf("\n");
 
     // Boater
-    printf("Boater");
     fillWeightMap(x, y, 2);
     dijkstra(weightMap, num);
-    printWM();
-    printf("\n");
+    int boaterMap[21][80];
+    memcpy(boaterMap, weightMap, sizeof(boaterMap));
+    // printWM();
+    // printf("\n");
+
+    moveNPC(x, y, time, hikerMap, rivalMap, boaterMap);
 }
 
 void placeNPCs(int amt, int x, int y) {
@@ -741,6 +823,12 @@ void placeNPCs(int amt, int x, int y) {
     int clearing[7] = {10, 12, 12, 12, INT_MAX, INT_MAX, 12};
     int path[7] = {10, 10, 10, 10, INT_MAX, INT_MAX, 10};
     int water[7] = {INT_MAX, INT_MAX, 20, INT_MAX, INT_MAX, INT_MAX, INT_MAX};
+    int hc = 0;
+    int rc = 0;
+    int bc = 0;
+    int pc = 0;
+    int wc = 0;
+    int nc = 0;
 
     while (i < amt) {
         int row = (rand() % 15) + 2;
@@ -764,7 +852,10 @@ void placeNPCs(int amt, int x, int y) {
                         clearing[t] = 5;
                         break;
                 }
+                wLocPrev[wc] = world[row][col][x][y];
                 world[row][col][x][y] = types[t];
+                wLoc[wc] = 80*row + col;
+                wc++;
                 i++;
             } else if (t == 5) {
                 if (world[row][col][x][y] != ',') {
@@ -776,19 +867,91 @@ void placeNPCs(int amt, int x, int y) {
                 switch(c) {
                     case ':':
                         if (tallG[t] != INT_MAX) {
+                            char prev = world[row][col][x][y];
                             world[row][col][x][y] = types[t];
+                            switch(t) {
+                                case 0:
+                                    hLocPrev[hc] = prev;
+                                    hLoc[hc] = 80*row + col;
+                                    hc++;
+                                    break;
+                                case 1:
+                                    rLocPrev[rc] = prev;
+                                    rLoc[rc] = 80*row + col;
+                                    rc++;
+                                    break;
+                                case 2:
+                                    bLocPrev[bc] = prev;
+                                    bLoc[bc] = 80*row + col;
+                                    bc++;
+                                    break;
+                                case 3:
+                                    pLocPrev[pc] = prev;
+                                    pLoc[pc] = 80*row + col;
+                                    pc++;
+                                    break;
+                                case 6:
+                                    nLocPrev[nc] = prev;
+                                    nLoc[nc] = 80*row + col;
+                                    nc++;
+                                    break;
+                            }
                             i++;
                         }
                         break;
                     case ',':
                         if (water[t] != INT_MAX) {
                             world[row][col][x][y] = types[t];
+                            switch(t) {
+                                case 0:
+                                    hLoc[hc] = 80*row + col;
+                                    hc++;
+                                    break;
+                                case 1:
+                                    rLoc[rc] = 80*row + col;
+                                    rc++;
+                                    break;
+                                case 2:
+                                    bLoc[bc] = 80*row + col;
+                                    bc++;
+                                    break;
+                                case 3:
+                                    pLoc[pc] = 80*row + col;
+                                    pc++;
+                                    break;
+                                case 6:
+                                    nLoc[nc] = 80*row + col;
+                                    nc++;
+                                    break;
+                            }
                             i++;
                         }
                         break;
                     case '.':
                         if (clearing[t] != INT_MAX) {
                             world[row][col][x][y] = types[t];
+                            switch(t) {
+                                case 0:
+                                    hLoc[hc] = 80*row + col;
+                                    hc++;
+                                    break;
+                                case 1:
+                                    rLoc[rc] = 80*row + col;
+                                    rc++;
+                                    break;
+                                case 2:
+                                    bLoc[bc] = 80*row + col;
+                                    bc++;
+                                    break;
+                                case 3:
+                                    pLoc[pc] = 80*row + col;
+                                    pc++;
+                                    break;
+                                case 6:
+                                    nLoc[nc] = 80*row + col;
+                                    nc++;
+                                    break;
+                            }
                             i++;
                         }
                         break;
@@ -799,9 +962,54 @@ void placeNPCs(int amt, int x, int y) {
     }
 }
 
+void changeNPCLoc(int x, int y, int u) {
+    for (int i = 0; i < 100; i++) {
+        if (hLocNew[i] == u) {
+            world[0][hLoc[i]][x][y] = hLocPrev[i];
+            char prev = world[0][u][x][y];
+            world[0][u][x][y] = 'h';
+            hLocPrev[i] = prev;
+            hLoc[i] = u;
+        }
+        if (rLocNew[i] == u) {
+            world[0][rLoc[i]][x][y] = rLocPrev[i];
+            char prev = world[0][u][x][y];
+            world[0][u][x][y] = 'r';
+            rLocPrev[i] = prev;
+            rLoc[i] = u;
+        }
+        if (bLocNew[i] == u) {
+            world[0][bLoc[i]][x][y] = bLocPrev[i];
+            char prev = world[0][u][x][y];
+            world[0][u][x][y] = 'b';
+            bLocPrev[i] = prev;
+            bLoc[i] = u;
+        }
+    }
+}
+
 void runMaps(int x, int y, int numT) {
     placeNPCs(numT, x, y);
     printSeed(x, y);
+    pqNPC = newNode(INT_MAX, INT_MAX);
+    int time = 0;
+    while (1 == 1) {
+        usleep(250000);
+        int i = 0;
+        getDistMaps(x, y, time);
+        while (i < 6 && !isEmptyQ(&pqNPC)) {
+            int u = peek(&pqNPC);
+            if (u == INT_MAX) {
+                break;
+            }
+            changeNPCLoc(x, y, u);
+            pop(&pqNPC);
+            usleep(250000);
+            printSeed(x, y);
+            i++;
+        }
+        time++;
+    }
 }
 
 int main(void) {
@@ -813,7 +1021,7 @@ int main(void) {
     srand(time(0));
     genSeed(x, y, pathResult, manhatDist);
     setPlayer(x, y);
-    getDistMaps(x, y);
+    //getDistMaps(x, y);
     runMaps(x, y, numTrainers);
     char input[100];
 
@@ -832,7 +1040,7 @@ int main(void) {
                     genSeed(x, y, pathResult, manhatDist);
                     setPlayer(x, y);
                 }
-                getDistMaps(x, y);
+                //getDistMaps(x, y);
                 runMaps(x, y, numTrainers);
                 break;
             case 's':
@@ -847,7 +1055,7 @@ int main(void) {
                     genSeed(x, y, pathResult, manhatDist);
                     setPlayer(x, y);
                 }
-                getDistMaps(x, y);
+                //getDistMaps(x, y);
                 runMaps(x, y, numTrainers);
                 break;
             case 'e':
@@ -862,7 +1070,7 @@ int main(void) {
                     genSeed(x, y, pathResult, manhatDist);
                     setPlayer(x, y);
                 }
-                getDistMaps(x, y);
+                //getDistMaps(x, y);
                 runMaps(x, y, numTrainers);
                 break;
             case 'w':
@@ -877,7 +1085,7 @@ int main(void) {
                     genSeed(x, y, pathResult, manhatDist);
                     setPlayer(x, y);
                 }
-                getDistMaps(x, y);
+                //getDistMaps(x, y);
                 runMaps(x, y, numTrainers);
                 break;
             case 'f':
@@ -893,7 +1101,7 @@ int main(void) {
                     genSeed(x, y, pathResult, manhatDist);
                     setPlayer(x, y);
                 }
-                getDistMaps(x, y);
+                //getDistMaps(x, y);
                 runMaps(x, y, numTrainers);
                 break;
             case '-':
