@@ -117,6 +117,8 @@ int pLocPrev[100];
 int wLocPrev[100];
 int sLocPrev[100];
 int nLocPrev[100];
+
+int pLocDir[100];
 Node* pqNPC; 
 
 void dijkstra(int graph[21][80], int src) {
@@ -740,7 +742,7 @@ void moveNPC(int x, int y, int time, int mapH[21][80], int mapR[21][80], int map
     //'h', 'r', 'b', 'p', 'w', 's', 'n'
     int cost = 0;
     int i = 0;
-    while (hLoc[i] != 0 || rLoc[i] != 0 || bLoc[i] != 0) {
+    while (hLoc[i] != 0 || rLoc[i] != 0 || bLoc[i] != 0 || pLoc[i] != 0) {
         if (hLoc[i] > 0) {
             int src = hLoc[i];
             int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
@@ -783,6 +785,51 @@ void moveNPC(int x, int y, int time, int mapH[21][80], int mapR[21][80], int map
             bLocNew[i] = sml;
             push(&pqNPC, sml, cost);
         }
+        if (pLoc[i] > 0) {
+            int src = pLoc[i];
+            int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
+            int sml = pLocDir[i];
+            if (pLocDir[i] == 0) {
+                int valid = false;
+                while (valid == false) {
+                    int num = rand() % 3;
+                    int dir = neighbors[num];
+                    if (dir > 80 && dir < 1600 && world[0][dir][x][y] != '%' && world[0][dir][x][y] != '"' && world[0][dir][x][y] != ',') {
+                        pLocDir[i] = num;
+                        valid = true;
+                        sml = dir;
+                    }
+                }
+                cost = time + 15;
+                pLocNew[i] = sml;
+                push(&pqNPC, sml, cost);
+            } else {
+                sml = neighbors[pLocDir[i]];
+                if (sml <= 80 || sml >= 1600 || world[0][sml][x][y] == '%' || world[0][sml][x][y] == 'M' || world[0][sml][x][y] == 'C' || world[0][sml][x][y] == '"' || world[0][sml][x][y] == ',') {
+                    switch (pLocDir[i]) {
+                        case 0:
+                            pLocDir[i] = pLocDir[i] + 1;
+                            sml = neighbors[pLocDir[i]];
+                            break;
+                        case 1:
+                            pLocDir[i] = pLocDir[i] - 1;
+                            sml = neighbors[pLocDir[i]];
+                            break;
+                        case 2:
+                            pLocDir[i] = pLocDir[i] + 1;
+                            sml = neighbors[pLocDir[i]];
+                            break;
+                        case 3:
+                            pLocDir[i] = pLocDir[i] - 1;
+                            sml = neighbors[pLocDir[i]];
+                            break;
+                    }
+                }
+                cost = time + 15;
+                pLocNew[i] = sml;
+                push(&pqNPC, sml, cost);
+            }
+        }
         i++;
     }
 }
@@ -812,6 +859,8 @@ void getDistMaps(int x, int y, int time) {
     memcpy(boaterMap, weightMap, sizeof(boaterMap));
     // printWM();
     // printf("\n");
+
+    // Pacer
 
     moveNPC(x, y, time, hikerMap, rivalMap, boaterMap);
 }
@@ -992,6 +1041,16 @@ void changeNPCLoc(int x, int y, int u, int stop) {
             bLoc[i] = u;
             if (stop == true) {
                 bLoc[i] = -1;
+            }
+        }
+        if (pLocNew[i] == u) {
+            world[0][pLoc[i]][x][y] = pLocPrev[i];
+            char prev = world[0][u][x][y];
+            world[0][u][x][y] = 'p';
+            pLocPrev[i] = prev;
+            pLoc[i] = u;
+            if (stop == true) {
+                pLoc[i] = -1;
             }
         }
     }
