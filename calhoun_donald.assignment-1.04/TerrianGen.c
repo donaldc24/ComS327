@@ -118,7 +118,10 @@ int wLocPrev[100];
 int sLocPrev[100];
 int nLocPrev[100];
 
+char wanderType[100];
 int pLocDir[100];
+int wLocDir[100];
+int nLocDir[100];
 Node* pqNPC; 
 
 void dijkstra(int graph[21][80], int src) {
@@ -742,7 +745,7 @@ void moveNPC(int x, int y, int time, int mapH[21][80], int mapR[21][80], int map
     //'h', 'r', 'b', 'p', 'w', 's', 'n'
     int cost = 0;
     int i = 0;
-    while (hLoc[i] != 0 || rLoc[i] != 0 || bLoc[i] != 0 || pLoc[i] != 0) {
+    while (hLoc[i] != 0 || rLoc[i] != 0 || bLoc[i] != 0 || pLoc[i] != 0 || wLoc[i] != 0 || sLoc[i] != 0 || nLoc[i] != 0) {
         if (hLoc[i] > 0) {
             int src = hLoc[i];
             int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
@@ -830,6 +833,80 @@ void moveNPC(int x, int y, int time, int mapH[21][80], int mapR[21][80], int map
                 push(&pqNPC, sml, cost);
             }
         }
+        if (wLoc[i] > 0) {
+            int src = wLoc[i];
+            int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
+            int sml = wLocDir[i];
+            if (wLocDir[i] == 0) {
+                int valid = false;
+                while (valid == false) {
+                    int num = rand() % 3;
+                    int dir = neighbors[num];
+                    if (dir > 80 && dir < 1600 && world[0][dir][x][y] == wanderType[i] && world[0][dir][x][y] != '%' && world[0][dir][x][y] != '"' && world[0][dir][x][y] != ',') {
+                        wLocDir[i] = num;
+                        valid = true;
+                        sml = dir;
+                    }
+                }
+                cost = time + 15;
+                wLocNew[i] = sml;
+                push(&pqNPC, sml, cost);
+            } else {
+                sml = neighbors[wLocDir[i]];
+                if (sml <= 80 || sml >= 1600 || world[0][sml][x][y] == '%' || world[0][sml][x][y] == 'M' || world[0][sml][x][y] == 'C' || world[0][sml][x][y] == '"' || world[0][sml][x][y] == ',' || world[0][sml][x][y] != wanderType[i]) {
+                    int valid = false;
+                    while (valid == false) {
+                        int num = rand() % 3;
+                        int dir = neighbors[num];
+                        if (dir > 80 && dir < 1600 && world[0][dir][x][y] == wanderType[i] && world[0][dir][x][y] != '%' && world[0][dir][x][y] != '"' && world[0][dir][x][y] != ',') {
+                            wLocDir[i] = num;
+                            valid = true;
+                            sml = dir;
+                        }
+                    }
+                }
+                cost = time + 15;
+                wLocNew[i] = sml;
+                push(&pqNPC, sml, cost);
+            }
+        }
+        if (nLoc[i] > 0) {
+            int src = nLoc[i];
+            int neighbors[8] = {src-80, src+80, src+1, src-1, src-81, src-79, src+79, src+81};
+            int sml = nLocDir[i];
+            if (nLocDir[i] == 0) {
+                int valid = false;
+                while (valid == false) {
+                    int num = rand() % 3;
+                    int dir = neighbors[num];
+                    if (dir > 80 && dir < 1600 && world[0][dir][x][y] != '%' && world[0][dir][x][y] != '"' && world[0][dir][x][y] != ',') {
+                        nLocDir[i] = num;
+                        valid = true;
+                        sml = dir;
+                    }
+                }
+                cost = time + 15;
+                nLocNew[i] = sml;
+                push(&pqNPC, sml, cost);
+            } else {
+                sml = neighbors[nLocDir[i]];
+                if (sml <= 80 || sml >= 1600 || world[0][sml][x][y] == '%' || world[0][sml][x][y] == 'M' || world[0][sml][x][y] == 'C' || world[0][sml][x][y] == '"' || world[0][sml][x][y] == ',') {
+                    int valid = false;
+                    while (valid == false) {
+                        int num = rand() % 3;
+                        int dir = neighbors[num];
+                        if (dir > 80 && dir < 1600 && world[0][dir][x][y] != '%' && world[0][dir][x][y] != '"' && world[0][dir][x][y] != ',') {
+                            nLocDir[i] = num;
+                            valid = true;
+                            sml = dir;
+                        }
+                    }
+                }
+                cost = time + 15;
+                nLocNew[i] = sml;
+                push(&pqNPC, sml, cost);
+            }
+        }
         i++;
     }
 }
@@ -857,10 +934,6 @@ void getDistMaps(int x, int y, int time) {
     dijkstra(weightMap, num);
     int boaterMap[21][80];
     memcpy(boaterMap, weightMap, sizeof(boaterMap));
-    // printWM();
-    // printf("\n");
-
-    // Pacer
 
     moveNPC(x, y, time, hikerMap, rivalMap, boaterMap);
 }
@@ -890,17 +963,7 @@ void placeNPCs(int amt, int x, int y) {
 
         if (world[row][col][x][y] != 'M' && world[row][col][x][y] != 'C' && world[row][col][x][y] != '#' && world[row][col][x][y] != '%' && world[row][col][x][y] != 'h' && world[row][col][x][y] != 'r' && world[row][col][x][y] != 'p' && world[row][col][x][y] != 'w' && world[row][col][x][y] != 's' && world[row][col][x][y] != 'n' && world[row][col][x][y] != 'b' && world[row][col][x][y] != '@') {
             if (t == 4) {
-                switch(world[row][col][x][y]) {
-                    case ':':
-                        tallG[t] = 5;
-                        break;
-                    case ',':
-                        water[t] = 5;
-                        break;
-                    case '.':
-                        clearing[t] = 5;
-                        break;
-                }
+                wanderType[wc] = world[row][col][x][y];
                 wLocPrev[wc] = world[row][col][x][y];
                 world[row][col][x][y] = types[t];
                 wLoc[wc] = 80*row + col;
@@ -1053,6 +1116,26 @@ void changeNPCLoc(int x, int y, int u, int stop) {
                 pLoc[i] = -1;
             }
         }
+        if (wLocNew[i] == u) {
+            world[0][wLoc[i]][x][y] = wLocPrev[i];
+            char prev = world[0][u][x][y];
+            world[0][u][x][y] = 'w';
+            wLocPrev[i] = prev;
+            wLoc[i] = u;
+            if (stop == true) {
+                wLoc[i] = -1;
+            }
+        }
+        if (nLocNew[i] == u) {
+            world[0][nLoc[i]][x][y] = nLocPrev[i];
+            char prev = world[0][u][x][y];
+            world[0][u][x][y] = 'n';
+            nLocPrev[i] = prev;
+            nLoc[i] = u;
+            if (stop == true) {
+                nLoc[i] = -1;
+            }
+        }
     }
 }
 
@@ -1100,7 +1183,8 @@ int main(void) {
     srand(time(0));
     genSeed(x, y, pathResult, manhatDist);
     setPlayer(x, y);
-    //getDistMaps(x, y);
+    printf("--numtrainers ");
+    scanf(" %d", &numTrainers);
     runMaps(x, y, numTrainers);
     char input[100];
 
