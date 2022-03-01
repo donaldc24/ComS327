@@ -1,4 +1,5 @@
-This is my Terrian Generation c code for 1.03, which meets all of the specified requirements as follows:
-	- Added three types of Trainers: Hiker, Rival, Boater along with PC
-	- Implemented Dijkstras algo to find the distance from every node to the player
-	- Prints distance maps for each type of trainer in the specified format
+This is my Terrian Generation c code for 1.04, which meets all of the specified requirements as follows:
+	- Added switch "--numtrainers" which allows user to input number of trainers generated
+	- Added movement for 7 different NPC types: Hiker, Rival, Boater, Pacer, Wanderer, Stationary, and Walkers
+	- Used the PQ I used from 1.03 to store the NPC types and movements
+	- Used usleep(25000) to update and reprint the map

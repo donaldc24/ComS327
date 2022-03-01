@@ -1,3 +1,8 @@
+9d48ff1 (HEAD -> main, origin/main, origin/HEAD) Added movement for Walker and wanderer
+9d4591f Added movement for Pacer type NPC
+5f48aaf Fixed bug when an NPC reached the PC
+9516349 Added animation for movement of NPCs, and also added pq and movement for hiker, rival, and boater type npcs
+aa1a53f Started on 1.04, added NPC types to spawn on map. Also added switch for --numtrainers
 2affb10 (HEAD -> main) Fixed mistakes in my Dijkstras algo, and formatted to turn in
 2fb278c (origin/main, origin/HEAD) Implementd Priority Queue found online, and made Dijkstra algo function to make distance maps
 4efcf5b Fixed makefile and added water generation along with player location
